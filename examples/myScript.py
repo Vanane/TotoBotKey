@@ -1,21 +1,29 @@
-from totoBotKey import *
+"""_summary_
+"""
+
+from ydotoolUtils.ydotool import wait, type_
+
+from totoBotKey.parser import BaseScript
+from totoBotKey.decorators import on
+
 
 class MyScript(BaseScript):
+    """_summary_"""
 
     @on("^a")
     @staticmethod
     def doSmth():
-        type("Ctrl+A got hit")
-    
+        """_summary_"""
+        type_("Ctrl+A got hit")
 
     @on("!a")
     @staticmethod
     def doSmth2():
-        type("Shift + A got hit")
+        """_summary_"""
+        type_("Shift + A got hit")
         wait(1000)
-        type("One second has passed")
-    
+        type_("One second has passed")
+
     @staticmethod
     def init():
-        print('innit')
-
+        print("innit")
