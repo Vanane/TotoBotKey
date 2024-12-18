@@ -27,25 +27,25 @@ class Keys:
         if not os.path.exists(self.dumpFile):
             self.dumpKeys()
 
-        self.registerKeys()
+        self.keys = self.readFromDump()
         Keys.instance = self
 
     def dumpKeys(self):
-        """Creates a cleaned local copy of the file located at 
-    `/usr/include/linux/input-event-codes.h`, for later use."""
-        print(
-            f"Extracting keyCodes from `/usr/include/linux/input-event-codes.h` into `{self.dumpFile}`"
-        )
+        """Creates a cleaned local copy of the file located at
+        `/usr/include/linux/input-event-codes.h`, for later use."""
+        if not os.path.exists(self.dumpFile):
+            print(
+                f"Extracting keyCodes from `/usr/include/linux/input-event-codes.h` into `{self.dumpFile}`"
+            )
+            os.system(
+                f"cat /usr/include/linux/input-event-codes.h | gcc -dM -E - > {self.dumpFile}"
+            )
 
-        os.system(
-            f"cat /usr/include/linux/input-event-codes.h | gcc -dM -E - > {self.dumpFile}"
-        )
-
-    def registerKeys(self):
+    def readFromDump(self):
         """Reads the file created by dumpKeys() to instantiate a dictionary
         of all keycodes that can be read and/or called in TotoBotKey.
         """
-        self.keys = dict()
+        keys = dict()
         with open(self.dumpFile, encoding="utf-8") as f:
             while l := f.readline().split():
                 try:
@@ -53,6 +53,14 @@ class Keys:
                     setattr(Keys, l[1], l[2])
                 except Exception:
                     pass
+        return keys
+
+    @staticmethod
+    def overrideKeys(keys: dict):
+        """Overrides the keys and their keycodes. Handy for using a custom layout"""
+        for k in keys:
+            setattr(Keys, k, keys[k])
+        Keys.getInstance().keys = keys
 
     @staticmethod
     def KEY_(k: str) -> int:
