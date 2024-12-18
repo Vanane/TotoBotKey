@@ -87,17 +87,17 @@ class Parser:
             respectively.
         """
         modsDict = {
-            "^": Keys.KEY_LEFTCTRL,
-            "+": Keys.KEY_LEFTSHIFT,
-            "!": Keys.KEY_LEFTALT,
-            "#": Keys.KEY_MENU,
+            "^": Keys.KEY_("LEFTCTRL"),
+            "+": Keys.KEY_("LEFTSHIFT"),
+            "!": Keys.KEY_("LEFTALT"),
+            "#": Keys.KEY_("MENU"),
         }
         keysDict = {
-            "BtnLeft": Keys.BTN_LEFT,
-            "BtnRight": Keys.BTN_RIGHT,
-            "BtnWheel": Keys.BTN_WHEEL,
-            "Btn4": Keys.BTN_4,
-            "Btn5": Keys.BTN_5,
+            "BtnLeft": Keys.BTN_("LEFT"),
+            "BtnRight": Keys.BTN_("RIGHT"),
+            "BtnWheel": Keys.BTN_("WHEEL"),
+            "Btn4": Keys.BTN_("4"),
+            "Btn5": Keys.BTN_("5"),
         }
 
         mods = set()
