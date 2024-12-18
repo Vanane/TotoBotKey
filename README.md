@@ -10,7 +10,7 @@ It work not unsimilarly to AutoHotKey, which I've yet to find a satisfying repla
 
 ## Why tho ?
 I've yet to find a satisfying replacement on Linux, and more specifically on Wayland.
-Apparently, KDE's macro tool is complete enough to do most stuff, but I believe that a single script ~~to rule them all~~ that handles everything feels easier to use and manage. Also, versioning:tm: capable !
+Apparently, KDE's macro tool is complete enough to do most stuff, but I believe that a single script ~~to rule them all~~ that handles everything feels easier to use and manage. Also, versioning™-capable !
 
 ## What do I need ?
 - A computer and an OS that uses Wayland
