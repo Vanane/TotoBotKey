@@ -1,14 +1,24 @@
-from ydotoolUtils import *
-from .parser import *
-from .input import *
-import importlib
-from evdevUtils import *
-from multiprocessing import Process
+"""Runtime
+"""
 
-class Runtime():
-    ydo:Ydotoold = None
-    
-    def runWith(self, script):
+from evdevUtils import DevEvent
+from ydotoolUtils import Ydotoold
+from .parser import Parser, Keys
+from .input import InputManager
+
+
+class Runtime:
+    """_summary_"""
+
+    ydo: Ydotoold = None
+
+    def runWith(self, script: str):
+        """Runs TotoBotKey with a given script name, assuming the name
+        doesn't contain the file extension
+
+        Args:
+            script (str): name of the script to load
+        """
         self.ydo = Ydotoold()
 
         if not self.ydo.checkYdotooldStatus():
@@ -19,42 +29,28 @@ class Runtime():
         DevEvent.getInstance()
         InputManager.getInstance()
 
-        p = Parser.parseScript(importlib.import_module(script))
-        
+        p = Parser.parseScript(script)
+
         if Parser.hasErrors():
             print(f"The following errors were found while parsing script '{script}' :")
             for e in Parser.getErrors():
                 print(f"- {e}")
             exit()
 
+        # Calling the script's initial setup
+        p.pythonClass.init()
+
         # Starting to listen to devices
         DevEvent.listenToAll(InputManager.devEventCallback)
-
-        # Instantiating user script
-        a = p.pythonClass()
-
-
-        '''
-        process = Process(target=a.main)
-        process.start()
-        
-        process.join()
-        '''
 
         # End of program
         self.cleanUp()
 
-
-
     def cleanUp(self):
-        pass
-
-
-    def dispatchEvent(self, data):
-        pass
-
+        """Cleans up"""
 
 
 if __name__ == "__main__":
     import sys
+
     Runtime().runWith(sys.argv[1])

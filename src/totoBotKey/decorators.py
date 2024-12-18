@@ -1,29 +1,37 @@
-from .parser import *
-from .input import *
+"""decorators
+"""
+
+from .parser import Parser
+from .input import InputManager
 
 
-def on(bind):
-    '''
+def on(bind:str):
+    """
     Binds a function to a particular combination of keypresses, with a naturalish syntax.
     Some keys can't be used through this decorator, such as Delete, Insert, F1-12, etc.
     Example :
         "^+!#a" : Ctrl + Shift + Alt + Super/Win/Menu + A Key
-    '''
+    """
+
     def d(f):
         (chars, mods) = Parser.parseEventDecorator(bind)
         keys = sorted(mods + chars)
-        InputManager.addEvent("+".join(keys), f)        
+        InputManager.addEvent("+".join(keys), f)
         return f
+
     return d
 
 
-def onExplicit(bind:str):
-    '''
-    Binds a function to a particular combination of keys given explicitely, bypassing the translation
+def onExplicit(bind: str):
+    """
+    Binds a function to a particular combination of keys given explicitely,
+    bypassing the translation
     Example :
         "KEY_LEFTCTRL+KEY_LEFTALT+KEY_DELETE" : Ctrl + Alt + Delete Key
-    '''
+    """
+
     def d(f):
         InputManager.addEvent("+".join(sorted(bind.split("+"))), f)
         return f
+
     return d

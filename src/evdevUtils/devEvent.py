@@ -1,56 +1,71 @@
-import os, struct
+"""devEvent
+"""
+
+import os
+import struct
 from multiprocessing import Process
+from typing import Callable, Self
 
-class DevEvent():
-    listeners:dict
-    keyboards:list
-    mouses:list
-    processes:list
 
-    instance:object
+class DevEvent:
+    """DevEvent is a singleton class that manages subscription
+    to the computer's hardware devices and listens to their input events.
+    """
+
+    listeners: dict
+    keyboards: list
+    mouses: list
+    processes: list
+
+    instance: object
 
     @staticmethod
-    def getInstance():
+    def getInstance() -> Self:
+        """Get the singleton instance."""
         if not getattr(DevEvent, "instance", False):
             DevEvent.instance = DevEvent()
         return DevEvent.instance
 
-    
     def __init__(self):
-        devDir = '/dev/input/by-path'
+        devDir = "/dev/input/by-path"
         self.keyboards = list(filter(lambda d: d.endswith("-kbd"), os.listdir(devDir)))
-        self.mouses = list(filter(lambda d:d.endswith("-mouse"), os.listdir(devDir)))
+        self.mouses = list(filter(lambda d: d.endswith("-mouse"), os.listdir(devDir)))
         self.processes = list()
-       
+
         print("Detected devices :")
         for i in self.keyboards + self.mouses:
-            print(f"- {str(i)}" )
-        
-        
+            print(f"- {str(i)}")
 
-    @staticmethod 
-    def listenToAll(callback):
+    @staticmethod
+    def listenToAll(callback: Callable):
+        """Runs as many processes as there are detected hardware mouses and keyboards,
+        to subscribe and then listen to any of their input events.
+
+        Args:
+            callback (function): function that will handle any input events occuring on any hardware
+        """
         for d in DevEvent.instance.keyboards + DevEvent.instance.mouses:
-            p = Process(target=DevEvent.listen, args=(d,callback))
+            p = Process(target=DevEvent.listen, args=(d, callback))
             p.start()
             print(f"Started listening on device '{d}'")
 
             DevEvent.instance.processes.append(p)
 
-
     @staticmethod
-    def listen(dev, callback):
-        with open(f"/dev/input/by-path/{dev}", 'rb') as f:
+    def listen(dev: str, callback: Callable) -> None:
+        """Subscribes to a given device's input events, then listens to it indefinitely
+
+        Args:
+            dev (str): name of the device (as seen in `/dev/input/by-path`) to subcribe to
+            callback (function): function that will handle any input events occuring on
+            this hardware
+
+        Returns:
+            None
+        """
+        with open(f"/dev/input/by-path/{dev}", "rb") as f:
             while True:
                 data = f.read(24)
-                data = struct.unpack('4IHHI', data)
-                callback(data)                
+                data = struct.unpack("4IHHI", data)
+                callback(data)
         return None
-
-
-    @staticmethod
-    def addListener(lis, dev):
-        if not DevEvent.instance.listeners.get(dev, False):
-            DevEvent.instance.listeners[dev] = list()
-        DevEvent.instance.listeners[dev].append(lis)
-
