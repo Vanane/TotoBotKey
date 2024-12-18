@@ -24,6 +24,6 @@ def onExplicit(bind:str):
         "KEY_LEFTCTRL+KEY_LEFTALT+KEY_DELETE" : Ctrl + Alt + Delete Key
     '''
     def d(f):
-        InputManager.addEvent(bind, f)
+        InputManager.addEvent("+".join(sorted(bind.split("+"))), f)
         return f
     return d

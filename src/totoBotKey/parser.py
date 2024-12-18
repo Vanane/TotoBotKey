@@ -4,7 +4,8 @@ from ydotoolUtils import Keys
 class BaseScript():
     '''Class to inherit any script from'''
 
-    def main(self):
+    @staticmethod
+    def init():
         '''Main script that will be called at the beginning.'''
         pass
     pass
