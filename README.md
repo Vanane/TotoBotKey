@@ -17,7 +17,8 @@ Apparently, KDE's macro tool is complete enough to do most stuff, but I believe 
 - Python 3.9+
 - [ydotool](https://github.com/ReimuNotMoe/ydotool), which also includes ydotoold
 
-You will need either root access to start ydotoold, or make it a service like so :
+You will need either root access to start ydotoold, or make it a service like so :<br>
+(I'm not a sysadmin, don't take this as a good security practice in any ways)
 ```
 [Unit]
 Description=ydotoold
@@ -32,3 +33,12 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 ```
+
+## To-do List
+By order of priority :
+- Refactor and clean codebase (lmao)
+- Add support for each ydotool command options (delaying keys, sending keydown/up, etc.)
+- Add keydown/keyup events
+- Encapsulate decorations into a class
+- Better handling of keyboard layout
+- Add a screenshot function (or a library that does just that on Wayland)
