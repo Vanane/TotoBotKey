@@ -49,7 +49,7 @@ class Keys:
         with open(self.dumpFile, encoding="utf-8") as f:
             while l := f.readline().split():
                 try:
-                    self.keys[l[1]] = l[2]
+                    keys[l[1]] = l[2]
                     setattr(Keys, l[1], l[2])
                 except Exception:
                     pass
