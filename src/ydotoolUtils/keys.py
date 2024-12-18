@@ -55,6 +55,11 @@ class Keys:
                     pass
 
     @staticmethod
-    def getKey(key) -> int:
-        """Returns a keycode from a given key enum"""
-        return Keys.instance.keys[key]
+    def KEY_(k: str) -> int:
+        """Returns the keycode representing the given key name"""
+        return getattr(Keys, f"KEY_{k}")
+
+    @staticmethod
+    def BTN_(b: str) -> int:
+        """Returns the keycode representing the given mouse button name"""
+        return getattr(Keys, f"BTN_{b}")
