@@ -1,0 +1,2 @@
+# TotoBotKey
+Just like AutohotKey !*
