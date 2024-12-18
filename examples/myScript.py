@@ -1,4 +1,4 @@
-from ..src.totoBotKey import *
+from totoBotKey import *
 
 class MyScript(BaseScript):
 
