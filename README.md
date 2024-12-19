@@ -17,22 +17,13 @@ Apparently, KDE's macro tool is complete enough to do most stuff, but I believe 
 - Python 3.9+
 - [ydotool](https://github.com/ReimuNotMoe/ydotool), which also includes ydotoold
 
-You will need either root access to start ydotoold, or make it a service like so :<br>
-(I'm not a sysadmin, don't take this as a good security practice in any ways)
-```
-[Unit]
-Description=ydotoold
-Documentation=https://github.com/ReimuNotMoe/ydotool
-After=network.target
- 
-[Service]
-User=root
-ExecStart=ydotoold
-Restart=on-failure   
- 
-[Install]
-WantedBy=multi-user.target
-```
+**Quick note on ydotoold :** (I AM NOT A SYSADMIN, DON'T TAKE THIS AS A GOOD SECURITY MEASURE)<br>
+It is recommended to run it as root user, but by doing so, ydotoold will create a socket file that's unreadable by a normal user.
+
+The way _I_ am running ydotoold right now is the following :
+- A Bash script starts the service and `chmod 660 & chgrp input`s the socket file it creates
+- The user I'm logged in is added to that `input` group, and this line : `export YDOTOOL_SOCKET=/tmp/.ydotool_socket` is present in its `.bashrc`
+- A systemd service runs that Bash script
 
 ## To-do List
 By order of priority :
