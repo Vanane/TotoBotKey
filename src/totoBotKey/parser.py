@@ -75,7 +75,7 @@ class Parser:
         return ParserResult(clss, Parser.getErrors(), False)
 
     @staticmethod
-    def parseEventDecorator(bind: str) -> tuple[list, list]:
+    def parseEventDecorator(*binds) -> tuple[list, list]:
         """Tries to convert a humanish-readable event binder into a keycode combination.
         See README.md for a list of allowed decorator syntaxes.
 
@@ -93,39 +93,41 @@ class Parser:
             "#": Keys.KEY_("MENU"),
         }
         keysDict = {
-            "BtnLeft": Keys.BTN_("LEFT"),
-            "BtnRight": Keys.BTN_("RIGHT"),
-            "BtnWheel": Keys.BTN_("WHEEL"),
-            "Btn4": Keys.BTN_("4"),
-            "Btn5": Keys.BTN_("5"),
+            "btnleft": Keys.BTN_("LEFT"),
+            "btnright": Keys.BTN_("RIGHT"),
+            "btnwheel": Keys.BTN_("WHEEL"),
+            "btn4": Keys.BTN_("4"),
+            "btn5": Keys.BTN_("5"),
         }
 
         mods = set()
         chars = set()
 
-        bind = bind.lower()
-        i = 0
-        while i < len(bind):
-            l = bind[i]
-            if modsDict.get(l, False):
-                mods.add(modsDict[l])
-            else:
-                t = ""
-                for j in range(len(bind[i:])):
-                    k = bind[i + j]
-                    if k.isalnum():
-                        t += k
-                    if not k.isalnum() or len(bind[i:]) == j + 1:
-                        key = f"KEY_{t.upper()}"
-                        try:
-                            chars.add(keysDict.get(t, getattr(Keys, key)))
-                        except AttributeError:
-                            Parser.addError(
-                                f"Error : Key '{key}' not found when trying to parse expression '{bind}'."
-                            )
-                        i += j
-                        break
-            i += 1
+        for bind in binds:
+            print(bind[0])
+            bind = str(bind).lower()
+            i = 0
+            while i < len(bind):
+                l = bind[i]
+                if modsDict.get(l, False):
+                    mods.add(modsDict[l])
+                else:
+                    t = ""
+                    for j in range(len(bind[i:])):
+                        k = bind[i + j]
+                        if k.isalnum():
+                            t += k
+                        if not k.isalnum() or len(bind[i:]) == j + 1:
+                            key = f"KEY_{t.upper()}"
+                            try:
+                                chars.add(keysDict.get(t, getattr(Keys, key)))
+                            except AttributeError:
+                                Parser.addError(
+                                    f"Error : Key '{key}' not found when trying to parse expression '{bind}'."
+                                )
+                            i += j
+                            break
+                i += 1
 
         return (sorted(chars), sorted(mods))
 
