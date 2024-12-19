@@ -41,4 +41,5 @@ By order of priority :
 - Add keydown/keyup events
 - Encapsulate decorations into a class
 - Better handling of keyboard layout
+  - Current solution : "you figure out your own keys dictionary"
 - Add a screenshot function (or a library that does just that on Wayland)
