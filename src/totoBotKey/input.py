@@ -1,6 +1,6 @@
 """input
 """
-
+from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Self
 from evdevUtils import enums
 
@@ -12,6 +12,9 @@ class InputManager:
 
     events: dict
     keyPresses: dict
+
+    futures:list
+    myPool:ThreadPoolExecutor
 
     """
     Keys that will be released artificially at the next event catch
@@ -31,6 +34,9 @@ class InputManager:
         self.keyPresses = dict()
         self.btnPresses = dict()
         self.events = dict()
+        self.futures = list()
+
+        self.myPool = ThreadPoolExecutor(max_workers=5)
 
     def keyPressed(self, keyCode: int):
         """The given keycode is flagged as currently held down in the keyPresses dict.
@@ -46,8 +52,6 @@ class InputManager:
         """
         self.keyPresses.pop(keyCode, None)
 
-        self.checkUserEvents()
-
     def checkUserEvents(self):
         """Checks out if, with the keys currently present in keyPresses,
         an user-defined event  can be triggered.
@@ -55,8 +59,8 @@ class InputManager:
         event = "+".join(sorted(map(str, self.keyPresses)))
         print(f"Trying to call event '{event}'")
         if self.events.get(event, False):
-            self.events[event]()
-            print(f"Event '{event}' called successfully")
+            self.futures.append(f:= self.myPool.submit(self.events[event]))
+            print(f"Event '{event}' called successfully through Future {str(f)}")
 
     @staticmethod
     def addEvent(comb: str, f: Callable):
@@ -78,7 +82,6 @@ class InputManager:
         Args:
             data (tuple): Event data, as defined in the Linux [Userspace API](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/input.h)
         """
-
         match int(data[4]):
             case enums.EV_KEY:
                 if data[6] == 1:
