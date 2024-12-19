@@ -78,4 +78,3 @@ class DevEvent:
         DevEvent.instance.stopFlag = True
         for f in DevEvent.instance.processes:
             f.terminate()
-            

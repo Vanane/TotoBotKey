@@ -18,6 +18,9 @@ class Runtime:
         self.stopFlag = False
         pass
 
+    def __init__(self):
+        pass
+
     def runWith(self, script: str):
         """Runs TotoBotKey with a given script name, assuming the name
         doesn't contain the file extension
