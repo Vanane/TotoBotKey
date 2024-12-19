@@ -1,6 +1,7 @@
 """Runtime
 """
 
+import signal
 from evdevUtils import DevEvent
 from ydotoolUtils import Ydotoold
 from .parser import Parser, Keys
@@ -11,6 +12,9 @@ class Runtime:
     """_summary_"""
 
     ydo: Ydotoold = None
+
+    def __init__(self):
+        pass
 
     def runWith(self, script: str):
         """Runs TotoBotKey with a given script name, assuming the name
@@ -35,7 +39,7 @@ class Runtime:
             print(f"The following errors were found while parsing script '{script}' :")
             for e in Parser.getErrors():
                 print(f"- {e}")
-            exit()
+            return
 
         # Calling the script's initial setup
         p.pythonClass.init()
@@ -43,11 +47,10 @@ class Runtime:
         # Starting to listen to devices
         DevEvent.listenToAll(InputManager.devEventCallback)
 
-        # End of program
-        self.cleanUp()
-
     def cleanUp(self):
         """Cleans up"""
+        DevEvent.cleanUp()
+        InputManager.cleanUp()
 
 
 if __name__ == "__main__":

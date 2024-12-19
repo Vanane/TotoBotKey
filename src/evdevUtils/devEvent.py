@@ -69,3 +69,12 @@ class DevEvent:
                 data = struct.unpack("4IHHI", data)
                 callback(data)
         return None
+
+
+    @staticmethod
+    def cleanUp():
+        f:Process
+        for f in DevEvent.instance.processes:
+            f.terminate()
+            f.close()
+

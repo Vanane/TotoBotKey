@@ -1,6 +1,7 @@
 """input
 """
-from concurrent.futures import ThreadPoolExecutor
+
+from concurrent.futures import ThreadPoolExecutor, Future
 from typing import Callable, Self
 from evdevUtils import enums
 
@@ -13,8 +14,8 @@ class InputManager:
     events: dict
     keyPresses: dict
 
-    futures:list
-    myPool:ThreadPoolExecutor
+    futures: list
+    eventsPool: ThreadPoolExecutor
 
     """
     Keys that will be released artificially at the next event catch
@@ -36,7 +37,7 @@ class InputManager:
         self.events = dict()
         self.futures = list()
 
-        self.myPool = ThreadPoolExecutor(max_workers=5)
+        self.eventsPool = ThreadPoolExecutor(max_workers=5)
 
     def keyPressed(self, keyCode: int):
         """The given keycode is flagged as currently held down in the keyPresses dict.
@@ -59,8 +60,9 @@ class InputManager:
         event = "+".join(sorted(map(str, self.keyPresses)))
         print(f"Trying to call event '{event}'")
         if self.events.get(event, False):
-            self.futures.append(f:= self.myPool.submit(self.events[event]))
+            self.futures.append(f := self.eventsPool.submit(self.events[event]))
             print(f"Event '{event}' called successfully through Future {str(f)}")
+
 
     @staticmethod
     def addEvent(comb: str, f: Callable):
@@ -93,6 +95,7 @@ class InputManager:
             case _:
                 pass
 
-
-
     
+    @staticmethod
+    def cleanUp():
+        InputManager.instance.eventsPool.shutdown()
