@@ -21,9 +21,8 @@ Apparently, KDE's macro tool is complete enough to do most stuff, but I believe 
 It is recommended to run it as root user, but by doing so, ydotoold will create a socket file that's unreadable by a normal user.
 
 The way _I_ am running ydotoold right now is the following :
-- A Bash script starts the service and `chmod 660 & chgrp input`s the socket file it creates
-- The user I'm logged in is added to that `input` group, and this line : `export YDOTOOL_SOCKET=/tmp/.ydotool_socket` is present in its `.bashrc`
-- A systemd service runs that Bash script
+- Added myself to `input` group
+- `ydotoold -P 660 -o root:input`
 
 ## To-do List
 By order of priority :
