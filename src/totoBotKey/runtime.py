@@ -12,6 +12,11 @@ class Runtime:
     """_summary_"""
 
     ydo: Ydotoold = None
+    stopFlag: bool
+
+    def __init__(self):
+        self.stopFlag = False
+        pass
 
     def __init__(self):
         pass
@@ -47,8 +52,13 @@ class Runtime:
         # Starting to listen to devices
         DevEvent.listenToAll(InputManager.devEventCallback)
 
+        while not self.stopFlag:
+            pass
+
+        self.cleanUp()
+
     def cleanUp(self):
-        """Cleans up"""
+        """Cleans up"""        
         DevEvent.cleanUp()
         InputManager.cleanUp()
 

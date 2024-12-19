@@ -2,6 +2,7 @@
 """
 
 import os
+import time
 import struct
 from multiprocessing import Process
 from typing import Callable, Self
@@ -16,6 +17,7 @@ class DevEvent:
     keyboards: list
     mouses: list
     processes: list
+    stopFlag:bool
 
     instance: object
 
@@ -31,6 +33,7 @@ class DevEvent:
         self.keyboards = list(filter(lambda d: d.endswith("-kbd"), os.listdir(devDir)))
         self.mouses = list(filter(lambda d: d.endswith("-mouse"), os.listdir(devDir)))
         self.processes = list()
+        self.stopFlag = False
 
         print("Detected devices :")
         for i in self.keyboards + self.mouses:
@@ -63,18 +66,15 @@ class DevEvent:
         Returns:
             None
         """
-        with open(f"/dev/input/by-path/{dev}", "rb") as f:
+        with open(f"/dev/input/by-path/{dev}", "rb") as f:            
             while True:
                 data = f.read(24)
                 data = struct.unpack("4IHHI", data)
                 callback(data)
         return None
 
-
     @staticmethod
     def cleanUp():
-        f:Process
+        DevEvent.instance.stopFlag = True
         for f in DevEvent.instance.processes:
             f.terminate()
-            f.close()
-
