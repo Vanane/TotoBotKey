@@ -22,7 +22,8 @@ It is recommended to run it as root user, but by doing so, ydotoold will create 
 
 The way _I_ am running ydotoold right now is the following :
 - Added myself to `input` group
-- `ydotoold -P 660 -o root:input`
+- Added `export YDOTOOL_SOCKET='/tmp/.ydotool_socket'` in my `~.bashrc`
+- A service runs `ydotoold -P 660 -o 0:<input GID>`
 
 ## To-do List
 By order of priority :
