@@ -5,7 +5,7 @@ from .parser import Parser
 from .input import InputManager
 
 
-def on(bind:str):
+def on(*bind):
     """
     Binds a function to a particular combination of keypresses, with a naturalish syntax.
     Some keys can't be used through this decorator, such as Delete, Insert, F1-12, etc.
@@ -14,7 +14,7 @@ def on(bind:str):
     """
 
     def d(f):
-        (chars, mods) = Parser.parseEventDecorator(bind)
+        (chars, mods) = Parser.parseEventDecorator(*bind)
         keys = sorted(mods + chars)
         InputManager.addEvent("+".join(keys), f)
         return f
