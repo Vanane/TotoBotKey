@@ -22,7 +22,7 @@ class MyScript(BaseScript):
     def doSmth3():
         while inputs.isPressed(keys.Keys.BTN_("SIDE")):
             click("BtnLeft")
-            wait(15)
+            #wait(15)
   
     @staticmethod
     def init():

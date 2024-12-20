@@ -116,7 +116,7 @@ def devEventCallback(data):
                 return os.kill(os.getpid(), signal.SIGINT)
             match data.value:
                 case 1:
-                    print(f"Received event : '{data}'")
+                    # print(f"Received event : '{data}'")
                     event = keyPressed(data)
                 case 0:
                     event = keyReleased(data)
