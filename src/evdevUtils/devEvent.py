@@ -48,43 +48,36 @@ def listenToAll(callback: Callable):
         filter(lambda d: d.endswith("-mouse"), os.listdir(DEV_DIR))
     )
 
-    devicePool = ThreadPoolExecutor(max_workers=len(devices))
+    devicePool = ThreadPoolExecutor(max_workers=10)
 
     print("Initializing devices...")
     running = True
     for d in devNames:
         try:
-            dev = evdev.InputDevice(f"{DEV_DIR}{d}")
+            devices.append(dev := evdev.InputDevice(f"{DEV_DIR}{d}"))
             print(f"- {dev.name}")
-
-            deviceFutures.append(devicePool.submit(listen, dev, callback))
         except OSError as e:
             print(e)
 
+    listen(callback)
 
 
-def listen(dev: evdev.InputDevice, callback: Callable) -> None:
-    """Subscribes to a given device's input events, then listens to it indefinitely
+def listen(callback: Callable) -> None:
+    """Subscribes to a given device's input events, then listens to it indefinitely"""
+    global devicePool
 
-    Args:
-        dev (InputDevice): name of the device (as seen in `/dev/input/by-path`) to subcribe to
-        callback (function): function that will handle any input events occuring on
-        this hardware
-
-    Returns:
-        None
-    """
-    print(f"Thread n°{os.getpid()} is listening device '{dev.name}'")
-    
     for dev in devices:
         time.sleep(1)
         dev.grab()
 
     while running:
-        data = dev.read_one()
-        if data:
-            callback(data)
-    dev.ungrab()
+        for dev in devices:
+            data = dev.read_one()
+            if data:
+                devicePool.submit(callback, data)
+
+    for dev in devices:
+        dev.ungrab()
 
 
 def cleanUp():
