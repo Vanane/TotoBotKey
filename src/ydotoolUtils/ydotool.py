@@ -4,19 +4,24 @@
 import os
 import time
 
+from ydotoolUtils.enums import CLICK_BTN_CODES
+
 """
 Ydotool native functions
 """
 
 
-def click(x: int, y: int):
+def click(btn=None):
     """Calls ydotool to simulate a click at the given coordinates
 
     Args:
         x (int): Position X on the viewport
         y (int): Position Y on the viewport
     """
-    os.system(f"ydotool click {x} {y}")
+    if not btn in CLICK_BTN_CODES:
+        raise ValueError(f"Mouse button '{btn}' not in {list(CLICK_BTN_CODES.keys())}")
+    print(CLICK_BTN_CODES[btn])
+    os.system(f"ydotool click {CLICK_BTN_CODES[btn]}")
 
 
 def mousemove(x: int, y: int):
@@ -38,7 +43,7 @@ def type_(text: str):
     os.system(f"ydotool type {text}")
 
 
-def keyss(keys: str):
+def key(keys: str):
     """Calls ydotool to simulate keystrokes
 
     Args:

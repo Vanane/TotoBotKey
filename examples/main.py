@@ -5,8 +5,10 @@
 from totoBotKey.runtime import Runtime
 import signal
 
+
 def sigint(s, f):
     r.stopFlag = True
+
 
 r = Runtime()
 

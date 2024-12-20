@@ -4,6 +4,7 @@
 import os
 import time
 import struct
+import evdev
 from multiprocessing import Process
 from typing import Callable, Self
 
@@ -17,7 +18,7 @@ class DevEvent:
     keyboards: list
     mouses: list
     processes: list
-    stopFlag:bool
+    stopFlag: bool
 
     instance: object
 
@@ -66,11 +67,13 @@ class DevEvent:
         Returns:
             None
         """
-        with open(f"/dev/input/by-path/{dev}", "rb") as f:            
+        with open(f"/dev/input/by-path/{dev}", "rb") as f:
             while True:
                 data = f.read(24)
-                data = struct.unpack("4IHHI", data)
-                callback(data)
+                (tv_sec, tv_sec_l, tv_usec, tv_usec_l, type, code, value) = (
+                    struct.unpack("4IHHI", data)
+                )
+                callback(tv_sec, tv_usec, type, code, value)
         return None
 
     @staticmethod

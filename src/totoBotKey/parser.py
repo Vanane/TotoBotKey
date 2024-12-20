@@ -98,19 +98,20 @@ class Parser:
             "btnwheel": Keys.BTN_("WHEEL"),
             "btn4": Keys.BTN_("4"),
             "btn5": Keys.BTN_("5"),
+            "btnside": Keys.BTN_("SIDE"),
+            "btnextra": Keys.BTN_("EXTRA"),
         }
 
         mods = set()
         chars = set()
 
         for bind in binds:
-            print(bind[0])
             bind = str(bind).lower()
             i = 0
             while i < len(bind):
                 l = bind[i]
                 if modsDict.get(l, False):
-                    mods.add(modsDict[l])
+                    mods.add(int(modsDict[l]))
                 else:
                     t = ""
                     for j in range(len(bind[i:])):
@@ -120,10 +121,14 @@ class Parser:
                         if not k.isalnum() or len(bind[i:]) == j + 1:
                             key = f"KEY_{t.upper()}"
                             try:
-                                chars.add(keysDict.get(t, getattr(Keys, key)))
+                                keycode = keysDict.get(t, getattr(Keys, key, None))
+                                if keycode is not None:
+                                    chars.add(int(keycode))
+                                else:
+                                    raise AttributeError
                             except AttributeError:
                                 Parser.addError(
-                                    f"Error : Key '{key}' not found when trying to parse expression '{bind}'."
+                                    f"Error : Key '{key}' or keyword '{t}' not found when trying to parse expression '{bind}'."
                                 )
                             i += j
                             break

@@ -1,8 +1,9 @@
 """decorators
 """
 
+import totoBotKey.inputs as inputs
 from .parser import Parser
-from .input import InputManager
+
 
 
 def on(*bind):
@@ -15,8 +16,8 @@ def on(*bind):
 
     def d(f):
         (chars, mods) = Parser.parseEventDecorator(*bind)
-        keys = sorted(mods + chars)
-        InputManager.addEvent("+".join(keys), f)
+        keys = list(map(str, sorted(mods + chars)))
+        inputs.addEvent("+".join(keys), f)
         return f
 
     return d
@@ -31,7 +32,7 @@ def onExplicit(bind: str):
     """
 
     def d(f):
-        InputManager.addEvent("+".join(sorted(bind.split("+"))), f)
+        inputs.addEvent("+".join(sorted(bind.split("+"))), f)
         return f
 
     return d

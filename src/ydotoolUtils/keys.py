@@ -49,8 +49,8 @@ class Keys:
         with open(self.dumpFile, encoding="utf-8") as f:
             while l := f.readline().split():
                 try:
-                    keys[l[1]] = l[2]
-                    setattr(Keys, l[1], l[2])
+                    keys[l[1]] = int(l[2], 0)
+                    setattr(Keys, l[1], int(l[2], 0))
                 except Exception:
                     pass
         return keys
@@ -63,11 +63,16 @@ class Keys:
         Keys.getInstance().keys = keys
 
     @staticmethod
+    def get(keycode):
+        """Return the keycode representing the given 'untyped' key name, e.g. EV_KEY, SYN_BTN, etc."""
+        return getattr(Keys, keycode)
+
+    @staticmethod
     def KEY_(k: str) -> int:
         """Returns the keycode representing the given key name"""
-        return getattr(Keys, f"KEY_{k}")
+        return int(getattr(Keys, f"KEY_{k.upper()}"))
 
     @staticmethod
     def BTN_(b: str) -> int:
         """Returns the keycode representing the given mouse button name"""
-        return getattr(Keys, f"BTN_{b}")
+        return int(getattr(Keys, f"BTN_{b.upper()}"))
