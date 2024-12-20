@@ -4,7 +4,9 @@
 from concurrent.futures import Future, ThreadPoolExecutor
 from multiprocessing.managers import SharedMemoryManager
 from typing import Callable, List
-from evdevUtils import enums
+from evdevUtils import enums, getDevices
+import os
+import signal
 
 EV = "EVENTS"
 
@@ -14,52 +16,61 @@ EV = "EVENTS"
 events: dict
 keyPresses: dict
 
-futures: List[Future]
+eventFutures: List[Future]
 eventsPool: ThreadPoolExecutor
 sharedMem: SharedMemoryManager
 
-"""
-Keys that will be released artificially at the next event catch
-"""
-toBeReleased: list
-
-instance: object
+ydotoold: object
 
 
 def init():
-    global keyPresses, events, futures, eventsPool, sharedMem
+    global keyPresses, events, eventFutures, eventsPool, sharedMem, ydotoold
 
     keyPresses = dict()
     events = dict()
-    futures = list()
+    eventFutures = list()
 
-    eventsPool = ThreadPoolExecutor(max_workers=5)
+    eventsPool = ThreadPoolExecutor(max_workers=10)
+
+    ydotoold = getDevices(lambda d: d.name == "ydotoold virtual device")
 
 
-def keyPressed(keyCode: int):
+def keyPressed(data) -> bool:
     """The given keycode is flagged as currently held down in the keyPresses dict.
     Called whenever an input event is caught, and the "value" field equals 1.
     """
-    keyPresses[keyCode] = True
-    callEvent("+".join(sorted(map(str, keyPresses))))
+    keyPresses[data.code] = True
+    return callEvent()
 
 
-def keyReleased(keyCode: int):
+def keyReleased(data) -> bool:
     """The given keycode is removed from the keyPresses dict.
     Called whenever an input event is caught, and the "value" field equals 0.
     """
-    keyPresses.pop(keyCode, None)
+    keyPresses.pop(data.code, None)
+    return False
 
 
-def callEvent(ev: str):
-    """Tries to find and call a given event, not generating any error in the absence of one."""
-    for f in futures:
-        if f.done():
-            futures.remove(f)
+def callEvent(ev: str = None) -> bool:
+    """Tries to find and call a given user event, not generating any error in the absence of one."""
+    try:
+        if ev is None:
+            return callEvent("+".join(sorted(map(str, keyPresses))))
 
-    if events.get(ev, False):
-        futures.append(f := eventsPool.submit(eventThread, events[ev]))
-        print(f"Event '{ev}' called successfully through Future {str(f)}")
+        for f in eventFutures:
+            if f.done():
+                eventFutures.remove(f)
+
+        print(f"Trying to call event '{ev}'")
+        if events.get(ev, False):
+            eventFutures.append(f := eventsPool.submit(eventThread, events[ev]))
+            print(f"Event '{ev}' called successfully through Future {str(f)}")
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(e)
+        return False
 
 
 def eventThread(event: Callable):
@@ -86,28 +97,40 @@ def addEvent(comb: str, f: Callable):
     print(f"Event '{comb}' added")
 
 
-def devEventCallback(s, ms, evType, code, value):
+def devEventCallback(data):
     """Callback that's called by DevEvent whener any input events occurs on any devices.
     It will manage keys states, and event triggering when necessary
 
     Args:
         data (tuple): Event data, as defined in the Linux [Userspace API](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/input.h)
     """
-    # print((s, ms, evType, code, value))
+    global ydotoold
 
-    match int(evType):
+    # Has an event been fired with this data ?
+    # If not, then the input event should be exploitable by the system.
+    event = False
+
+    match int(data.type):
         case enums.EV_KEY:
-            match value:
+            if data.code == 1:
+                return os.kill(os.getpid(), signal.SIGINT)
+            match data.value:
                 case 1:
-                    print(f"Received event : '{(s, ms, evType, code, value)}'")
-                    keyPressed(code)
+                    print(f"Received event : '{data}'")
+                    event = keyPressed(data)
                 case 0:
-                    keyReleased(code)
+                    event = keyReleased(data)
                 case _:
                     pass
         case _:
             pass
 
+    if event:
+        pass
+    else:
+        ydotoold.write_event(data)
+
 
 def cleanUp():
+    print("Shutting down inputs thread pool...")
     eventsPool.shutdown()

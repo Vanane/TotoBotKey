@@ -5,79 +5,99 @@ import os
 import time
 import struct
 import evdev
-from multiprocessing import Process
-from typing import Callable, Self
+from concurrent.futures import Future, ThreadPoolExecutor
+from typing import Callable, List
 
 
-class DevEvent:
-    """DevEvent is a singleton class that manages subscription
-    to the computer's hardware devices and listens to their input events.
+"""DevEvent is a singleton class that manages subscription
+to the computer's hardware devices and listens to their input events.
+"""
+
+DEV_DIR = "/dev/input/by-id/"
+
+listeners: dict
+
+devices: list
+
+ydotoold: object
+
+devicePool: ThreadPoolExecutor
+deviceFutures: List[Future]
+running: bool
+
+instance: object
+
+
+def init():
+    global running, devices, deviceFutures, devicePool
+    running = False
+    deviceFutures = list()
+    devices = list()
+
+
+def listenToAll(callback: Callable):
+    """Runs as many processes as there are detected hardware mouses and keyboards,
+    to subscribe and then listen to any of their input events.
+
+    Args:
+        callback (function): function that will handle any input events occuring on any hardware
     """
+    global running, devices, deviceFutures, devicePool
 
-    listeners: dict
-    keyboards: list
-    mouses: list
-    processes: list
-    stopFlag: bool
+    devNames = list(filter(lambda d: d.endswith("-kbd"), os.listdir(DEV_DIR))) + list(
+        filter(lambda d: d.endswith("-mouse"), os.listdir(DEV_DIR))
+    )
 
-    instance: object
+    devicePool = ThreadPoolExecutor(max_workers=len(devices))
 
-    @staticmethod
-    def getInstance() -> Self:
-        """Get the singleton instance."""
-        if not getattr(DevEvent, "instance", False):
-            DevEvent.instance = DevEvent()
-        return DevEvent.instance
+    print("Initializing devices...")
+    running = True
+    for d in devNames:
+        try:
+            dev = evdev.InputDevice(f"{DEV_DIR}{d}")
+            print(f"- {dev.name}")
 
-    def __init__(self):
-        devDir = "/dev/input/by-path"
-        self.keyboards = list(filter(lambda d: d.endswith("-kbd"), os.listdir(devDir)))
-        self.mouses = list(filter(lambda d: d.endswith("-mouse"), os.listdir(devDir)))
-        self.processes = list()
-        self.stopFlag = False
+            deviceFutures.append(devicePool.submit(listen, dev, callback))
+        except OSError as e:
+            print(e)
 
-        print("Detected devices :")
-        for i in self.keyboards + self.mouses:
-            print(f"- {str(i)}")
 
-    @staticmethod
-    def listenToAll(callback: Callable):
-        """Runs as many processes as there are detected hardware mouses and keyboards,
-        to subscribe and then listen to any of their input events.
 
-        Args:
-            callback (function): function that will handle any input events occuring on any hardware
-        """
-        for d in DevEvent.instance.keyboards + DevEvent.instance.mouses:
-            p = Process(target=DevEvent.listen, args=(d, callback))
-            p.start()
-            print(f"Started listening on device '{d}'")
+def listen(dev: evdev.InputDevice, callback: Callable) -> None:
+    """Subscribes to a given device's input events, then listens to it indefinitely
 
-            DevEvent.instance.processes.append(p)
+    Args:
+        dev (InputDevice): name of the device (as seen in `/dev/input/by-path`) to subcribe to
+        callback (function): function that will handle any input events occuring on
+        this hardware
 
-    @staticmethod
-    def listen(dev: str, callback: Callable) -> None:
-        """Subscribes to a given device's input events, then listens to it indefinitely
+    Returns:
+        None
+    """
+    print(f"Thread n°{os.getpid()} is listening device '{dev.name}'")
+    
+    for dev in devices:
+        time.sleep(1)
+        dev.grab()
 
-        Args:
-            dev (str): name of the device (as seen in `/dev/input/by-path`) to subcribe to
-            callback (function): function that will handle any input events occuring on
-            this hardware
+    while running:
+        data = dev.read_one()
+        if data:
+            callback(data)
+    dev.ungrab()
 
-        Returns:
-            None
-        """
-        with open(f"/dev/input/by-path/{dev}", "rb") as f:
-            while True:
-                data = f.read(24)
-                (tv_sec, tv_sec_l, tv_usec, tv_usec_l, type, code, value) = (
-                    struct.unpack("4IHHI", data)
-                )
-                callback(tv_sec, tv_usec, type, code, value)
-        return None
 
-    @staticmethod
-    def cleanUp():
-        DevEvent.instance.stopFlag = True
-        for f in DevEvent.instance.processes:
-            f.terminate()
+def cleanUp():
+    print("Shutting down devEvent thread pool...")
+    for f in deviceFutures:
+        f.join()
+        f.close()
+    devicePool.shutdown()
+
+
+def getDevices(predicate, fromDir="/dev/input"):
+    devs = [evdev.InputDevice(d) for d in evdev.list_devices(fromDir)]
+    r = list(filter(predicate, devs))
+    if len(r) == 1:
+        return r[0]
+    return r
