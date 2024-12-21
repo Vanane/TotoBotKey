@@ -2,8 +2,7 @@
 """
 
 import totoBotKey.inputs as inputs
-from .parser import Parser
-
+from . import parser
 
 
 def on(*bind):
@@ -15,7 +14,7 @@ def on(*bind):
     """
 
     def d(f):
-        (chars, mods) = Parser.parseEventDecorator(*bind)
+        (chars, mods) = parser.parseEventDecorator(*bind)
         keys = list(map(str, sorted(mods + chars)))
         inputs.addEvent("+".join(keys), f)
         return f

@@ -43,14 +43,15 @@ def type_(text: str):
     os.system(f"ydotool type {text}")
 
 
-def key(keys: str):
+def key(keys: str | list):
     """Calls ydotool to simulate keystrokes
 
     Args:
         keys (str): Keys to strike all at once
     """
-    if type_(keys) is list:
+    if type(keys) is list:
         keys = " ".join(keys)
+    print(f"ydotool key {keys}")
     os.system(f"ydotool key {keys}")
 
 
@@ -66,3 +67,11 @@ def wait(ms):
         ms (int): Time to wait, in milliseconds
     """
     time.sleep(int(ms) / 1000)
+
+
+def pressKeys(keys: str | list):
+    l = list()
+    for s in ["1", "0"]:
+        for k in keys:
+            l.append(f"{k}:{s}")
+    key(l)
