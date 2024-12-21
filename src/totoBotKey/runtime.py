@@ -4,66 +4,66 @@
 import time
 import signal
 import evdevUtils
-from ydotoolUtils import Ydotoold
-from .parser import Parser, Keys
-import totoBotKey.inputs as inputs
+from ydotoolUtils import ydotoold, keys
+from . import parser
+from . import inputs
 
 
-class Runtime:
-    """_summary_"""
+running: bool
 
-    ydo: Ydotoold = None
-    running: bool
 
-    def __init__(self):
-        self.running = True
+def __init__():
+    global running
+    running = True
 
-    def runWith(self, script: str):
-        """Runs TotoBotKey with a given script name, assuming the name
-        doesn't contain the file extension
 
-        Args:
-            script (str): name of the script to load
-        """
-        self.ydo = Ydotoold()
+def runWith(script: str):
+    """Runs TotoBotKey with a given script name, assuming the name
+    doesn't contain the file extension
 
-        if not self.ydo.checkYdotooldStatus():
-            print("ytodoold service not running, exiting.")
-            exit()
+    Args:
+        script (str): name of the script to load
+    """
+    global running
 
-        Keys.getInstance()
-        evdevUtils.init()
-        inputs.init()
+    if not ydotoold.checkYdotooldStatus():
+        print("ytodoold service not running, exiting.")
+        exit()
 
-        p = Parser.parseScript(script)
+    keys.init()
+    evdevUtils.init()
+    inputs.init()
+    parser.init()
+    p = parser.parseScript(script)
 
-        if Parser.hasErrors():
-            print(f"The following errors were found while parsing script '{script}' :")
-            for e in Parser.getErrors():
-                print(f"- {e}")
-            return
+    if parser.hasErrors():
+        print(f"The following errors were found while parsing script '{script}' :")
+        for e in parser.getErrors():
+            print(f"- {e}")
+        return
 
-        # Calling the script's initial setup
-        p.pythonClass.init()
+    # Calling the script's initial setup
+    p.pythonClass.init()
 
-        # Starting to listen to devices
-        evdevUtils.listenToAll(inputs.devEventCallback)
+    # Starting to listen to devices
+    evdevUtils.listenToAll(inputs.devEventCallback)
 
-        self.running = True
-        while self.running:
-            time.sleep(1)
+    running = True
+    while running:
+        time.sleep(1)
 
-        print("Shutting down...")
-        self.cleanUp()
+    print("Shutting down...")
+    cleanUp()
 
-    def cleanUp(self):
-        """Cleans up"""
-        print("Cleaning up...")
-        evdevUtils.cleanUp()
-        inputs.cleanUp()
+
+def cleanUp():
+    """Cleans up"""
+    print("Cleaning up...")
+    evdevUtils.cleanUp()
+    inputs.cleanUp()
 
 
 if __name__ == "__main__":
     import sys
 
-    Runtime().runWith(sys.argv[1])
+    runWith(sys.argv[1])
