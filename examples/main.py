@@ -3,10 +3,6 @@
 """
 
 import signal
-from totoBotKey.runtime import Runtime
+from totoBotKey.runtime import runWith
 
-
-r = Runtime()
-
-r.runWith("myScript")
-
+runWith("myScript")
