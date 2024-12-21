@@ -4,7 +4,8 @@
 from concurrent.futures import Future, ThreadPoolExecutor
 from multiprocessing.managers import SharedMemoryManager
 from typing import Callable, List
-from evdevUtils import enums, getDevices
+from evdevUtils import enums, getDevices, listener
+from . import runtime
 import os
 import signal
 
@@ -106,17 +107,22 @@ def devEventCallback(data):
     """
     global ydotoold
 
+    if data.code in [272, 273]:
+        return playback(data)
+
     # Has an event been fired with this data ?
     # If not, then the input event should be exploitable by the system.
     event = False
 
     match int(data.type):
         case enums.EV_KEY:
-            if data.code == 1:
-                return os.kill(os.getpid(), signal.SIGINT)
+            if data.value == 0 and data.code == 1:
+                #return os.kill(os.getpid(), signal.SIGINT)
+                listener.running = False
+                playback(data) # Playing back the "Esc release" event
+                return
             match data.value:
                 case 1:
-                    # print(f"Received event : '{data}'")
                     event = keyPressed(data)
                 case 0:
                     event = keyReleased(data)
@@ -128,9 +134,14 @@ def devEventCallback(data):
     if event:
         pass
     else:
-        ydotoold.write_event(data)
+        playback(data)
+
+def playback(data):
+    """Plays an event on ydotoold device"""
+    ydotoold.write_event(data)
 
 
 def cleanUp():
+    """Cleans thread pool up"""
     print("Shutting down inputs thread pool...")
     eventsPool.shutdown()
