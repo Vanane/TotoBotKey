@@ -4,7 +4,8 @@
 from concurrent.futures import Future, ThreadPoolExecutor
 from multiprocessing.managers import SharedMemoryManager
 from typing import Callable, List
-from evdevUtils import enums, getDevices, listener
+from evdevUtils import getDevices, listener, enums
+from evdev import InputDevice
 from . import runtime
 import os
 import signal
@@ -21,7 +22,7 @@ eventFutures: List[Future]
 eventsPool: ThreadPoolExecutor
 sharedMem: SharedMemoryManager
 
-ydotoold: object
+ydotoold: InputDevice
 
 
 def init():
@@ -29,7 +30,6 @@ def init():
 
     keyPresses = dict()
     events = dict()
-    eventFutures = list()
 
     eventsPool = ThreadPoolExecutor(max_workers=10)
 
@@ -58,13 +58,9 @@ def callEvent(ev: str = None) -> bool:
         if ev is None:
             return callEvent("+".join(sorted(map(str, keyPresses))))
 
-        for f in eventFutures:
-            if f.done():
-                eventFutures.remove(f)
-
         print(f"Trying to call event '{ev}'")
         if events.get(ev, False):
-            eventFutures.append(f := eventsPool.submit(eventThread, events[ev]))
+            f = eventsPool.submit(eventThread, events[ev])
             print(f"Event '{ev}' called successfully through Future {str(f)}")
             return True
         else:
@@ -128,17 +124,20 @@ def devEventCallback(data):
                     event = keyReleased(data)
                 case _:
                     pass
+            if not event:
+                playback(data)
         case _:
             pass
 
     if event:
         pass
-    else:
+    if not event:
         playback(data)
 
 def playback(data):
     """Plays an event on ydotoold device"""
-    ydotoold.write_event(data)
+    ydotoold.write(data.type, data.code, data.value)
+    ydotoold.write(enums.EV_SYN, 0, 0) # Writing a SYN event to make sure that the playback effect is immediate. Delay happens otherwise.
 
 
 def cleanUp():

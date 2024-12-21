@@ -45,8 +45,6 @@ def subscribeToAll(cb: Callable):
 
     callback = cb
 
-    devicePool = ThreadPoolExecutor(max_workers=10)
-
     print("Initializing devices...")
     running = True
 
@@ -56,19 +54,25 @@ def subscribeToAll(cb: Callable):
 
     for d in devNames:
         try:
-            devices.append(dev := InputDevice(f"{DEV_DIR}{d}"))
+            devices.append(dev := InputDevice(f"{DEV_DIR}{d}"))            
             print(f"- {dev.name}")
         except OSError as e:
             print(e)
+    
+    time.sleep(1) # Small sleep in order to read all the events that occured while opening the devices
+
 
 
 def listen() -> None:
     """Subscribes to a given device's input events, then listens to it indefinitely"""
     global devicePool, devices, running, callback
 
+    devicePool = ThreadPoolExecutor(max_workers=20)
+
     for dev in devices:
-        time.sleep(1)
         dev.grab()
+    
+    print("Ready !")
 
     try:
         while running:
@@ -87,10 +91,10 @@ def cleanUp():
     """Cleans up the devices and threads used by the module"""
     global devicePool, deviceFutures, devices, running
     running = False
-    print("Shutting down devEvent thread pool...")
+    print("Shutting down listener thread pool...")
     for f in deviceFutures:
-        f.join()
-        f.close()
+        while f.running():
+            time.sleep(100)
     for d in devices:
         d.close()
     devicePool.shutdown()
