@@ -4,7 +4,9 @@
 from concurrent.futures import Future, ThreadPoolExecutor
 from multiprocessing.managers import SharedMemoryManager
 from typing import Callable, List
-from evdevUtils import enums, getDevices
+from evdevUtils import getDevices, listener, enums
+from evdev import InputDevice
+from . import runtime
 import os
 import signal
 
@@ -20,7 +22,7 @@ eventFutures: List[Future]
 eventsPool: ThreadPoolExecutor
 sharedMem: SharedMemoryManager
 
-ydotoold: object
+ydotoold: InputDevice
 
 
 def init():
@@ -28,7 +30,6 @@ def init():
 
     keyPresses = dict()
     events = dict()
-    eventFutures = list()
 
     eventsPool = ThreadPoolExecutor(max_workers=10)
 
@@ -57,13 +58,9 @@ def callEvent(ev: str = None) -> bool:
         if ev is None:
             return callEvent("+".join(sorted(map(str, keyPresses))))
 
-        for f in eventFutures:
-            if f.done():
-                eventFutures.remove(f)
-
         print(f"Trying to call event '{ev}'")
         if events.get(ev, False):
-            eventFutures.append(f := eventsPool.submit(eventThread, events[ev]))
+            f = eventsPool.submit(eventThread, events[ev])
             print(f"Event '{ev}' called successfully through Future {str(f)}")
             return True
         else:
@@ -106,31 +103,44 @@ def devEventCallback(data):
     """
     global ydotoold
 
+    if data.code in [272, 273]:
+        return playback(data)
+
     # Has an event been fired with this data ?
     # If not, then the input event should be exploitable by the system.
     event = False
 
     match int(data.type):
         case enums.EV_KEY:
-            if data.code == 1:
-                return os.kill(os.getpid(), signal.SIGINT)
+            if data.value == 0 and data.code == 1:
+                #return os.kill(os.getpid(), signal.SIGINT)
+                listener.running = False
+                playback(data) # Playing back the "Esc release" event
+                return
             match data.value:
                 case 1:
-                    # print(f"Received event : '{data}'")
                     event = keyPressed(data)
                 case 0:
                     event = keyReleased(data)
                 case _:
                     pass
+            if not event:
+                playback(data)
         case _:
             pass
 
     if event:
         pass
-    else:
-        ydotoold.write_event(data)
+    if not event:
+        playback(data)
+
+def playback(data):
+    """Plays an event on ydotoold device"""
+    ydotoold.write(data.type, data.code, data.value)
+    ydotoold.write(enums.EV_SYN, 0, 0) # Writing a SYN event to make sure that the playback effect is immediate. Delay happens otherwise.
 
 
 def cleanUp():
+    """Cleans thread pool up"""
     print("Shutting down inputs thread pool...")
     eventsPool.shutdown()

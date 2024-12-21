@@ -2,7 +2,6 @@
 """
 
 import time
-import signal
 import evdevUtils
 from ydotoolUtils import ydotoold, keys
 from . import parser
@@ -13,8 +12,9 @@ running: bool
 
 
 def __init__():
+    """Initializes the runtime environment"""
     global running
-    running = True
+    running = False
 
 
 def runWith(script: str):
@@ -45,22 +45,23 @@ def runWith(script: str):
     # Calling the script's initial setup
     p.pythonClass.init()
 
-    # Starting to listen to devices
-    evdevUtils.listenToAll(inputs.devEventCallback)
+    evdevUtils.subscribeToAll(inputs.devEventCallback)
 
     running = True
-    while running:
-        time.sleep(1)
 
-    print("Shutting down...")
+    # Starting to listen to devices, blocking the main thread
+    evdevUtils.listen()
+
+    running = False
+
     cleanUp()
 
 
 def cleanUp():
     """Cleans up"""
-    print("Cleaning up...")
-    evdevUtils.cleanUp()
+    print("Shutting down...")
     inputs.cleanUp()
+    evdevUtils.cleanUp()
 
 
 if __name__ == "__main__":

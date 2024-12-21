@@ -20,7 +20,6 @@ def click(btn=None):
     """
     if not btn in CLICK_BTN_CODES:
         raise ValueError(f"Mouse button '{btn}' not in {list(CLICK_BTN_CODES.keys())}")
-    print(CLICK_BTN_CODES[btn])
     os.system(f"ydotool click {CLICK_BTN_CODES[btn]}")
 
 
@@ -51,7 +50,6 @@ def key(keys: str | list):
     """
     if type(keys) is list:
         keys = " ".join(keys)
-    print(f"ydotool key {keys}")
     os.system(f"ydotool key {keys}")
 
 

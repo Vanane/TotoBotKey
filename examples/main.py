@@ -2,7 +2,6 @@
     `PYTHONPATH=PYTHONPATH:../src python main.py`
 """
 
-import signal
 from totoBotKey.runtime import runWith
 
 runWith("myScript")
