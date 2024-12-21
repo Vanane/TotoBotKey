@@ -12,17 +12,34 @@ def on(*bind):
     Example :
         "^+!#a" : Ctrl + Shift + Alt + Super/Win/Menu + A Key
     """
-
     def d(f):
         (chars, mods) = parser.parseEventDecorator(*bind)
         keys = list(map(str, sorted(mods + chars)))
-        inputs.addEvent("+".join(keys), f)
+        inputs.addEventOnAny("+".join(keys), f)
         return f
 
     return d
 
+def onAny(*bind):
+    return on(bind)
 
-def onExplicit(bind: str):
+def onOnly(*bind):
+    """
+    Binds a function to a particular combination of keypresses, calling it only when this combination and nothing else is pressed.
+    Example :
+    >>> on("a")     # Triggers whenever A is pressed, along with other keys.
+    >>> onOnly("a") # Triggers whenever A and only A is pressed. "Ctrl+A" or "Shift+A" among others, won't trigger it.
+    """
+
+    def d(f):
+        (chars, mods) = parser.parseEventDecorator(*bind)
+        keys = list(map(str, sorted(mods + chars)))
+        inputs.addEventOnAny("+".join(keys), f)
+        return f
+    return d
+
+
+def onRaw(bind: str):
     """
     Binds a function to a particular combination of keys given explicitely,
     bypassing the translation
@@ -31,7 +48,7 @@ def onExplicit(bind: str):
     """
 
     def d(f):
-        inputs.addEvent("+".join(sorted(bind.split("+"))), f)
+        inputs.addEventOnAny("+".join(sorted(bind.split("+"))), f)
         return f
 
     return d

@@ -3,20 +3,23 @@
 
 from concurrent.futures import Future, ThreadPoolExecutor
 from multiprocessing.managers import SharedMemoryManager
-from typing import Callable, List
+from typing import Callable, List, Dict
 from evdevUtils import getDevices, listener, enums
 from evdev import InputDevice
 from . import runtime
 import os
 import signal
+import regex
+
+
 
 EV = "EVENTS"
 
 
-"""Singleton class to manage event inputs received from DevEvent"""
+eventsOnAny: dict
+eventsOnOnly:dict
 
-events: dict
-keyPresses: dict
+keyStates: dict
 
 eventFutures: List[Future]
 eventsPool: ThreadPoolExecutor
@@ -26,10 +29,11 @@ ydotoold: InputDevice
 
 
 def init():
-    global keyPresses, events, eventFutures, eventsPool, sharedMem, ydotoold
+    global keyStates, eventsOnAny, eventsOnOnly, eventFutures, eventsPool, sharedMem, ydotoold
 
-    keyPresses = dict()
-    events = dict()
+    keyStates = dict()
+    eventsOnAny = dict()
+    eventsOnOnly = dict()
 
     eventsPool = ThreadPoolExecutor(max_workers=10)
 
@@ -40,7 +44,7 @@ def keyPressed(data) -> bool:
     """The given keycode is flagged as currently held down in the keyPresses dict.
     Called whenever an input event is caught, and the "value" field equals 1.
     """
-    keyPresses[data.code] = True
+    keyStates[data.code] = True
     return callEvent()
 
 
@@ -48,26 +52,38 @@ def keyReleased(data) -> bool:
     """The given keycode is removed from the keyPresses dict.
     Called whenever an input event is caught, and the "value" field equals 0.
     """
-    keyPresses.pop(data.code, None)
+    keyStates.pop(data.code, None)
     return False
 
 
 def callEvent(ev: str = None) -> bool:
     """Tries to find and call a given user event, not generating any error in the absence of one."""
+    state = False
     try:
         if ev is None:
-            return callEvent("+".join(sorted(map(str, keyPresses))))
+            return callEvent("+".join(sorted(map(str, keyStates))))
 
         print(f"Trying to call event '{ev}'")
-        if events.get(ev, False):
-            f = eventsPool.submit(eventThread, events[ev])
+        if eventsOnOnly.get(ev, False):
+            f = eventsPool.submit(eventThread, eventsOnAny[ev])
             print(f"Event '{ev}' called successfully through Future {str(f)}")
-            return True
-        else:
-            return False
+            state = True
+
+        keys = eventsOnAny.keys()
+        for k in keyStates:
+            keys = list(filter(lambda e: regex.match(f"(?:^|\+)({k})(?:$|\+)", e), keys))
+        
+        for k in keys:
+            f = eventsPool.submit(eventThread, eventsOnAny[ev])
+            print(f"Event '{ev}' called successfully through Future {str(f)}")
+            state = True
+        
+        
     except Exception as e:
         print(e)
-        return False
+        state = False
+    
+    return state
 
 
 def eventThread(event: Callable):
@@ -79,10 +95,10 @@ def eventThread(event: Callable):
 
 def isPressed(key):
     """Return the state of a given keycode"""
-    return keyPresses.get(int(key), False)
+    return keyStates.get(int(key), False)
 
 
-def addEvent(comb: str, f: Callable):
+def addEventOnAny(comb: str, f: Callable):
     """Adds an user-defined event to the manager.
 
     Args:
@@ -90,9 +106,12 @@ def addEvent(comb: str, f: Callable):
         in this format : xx+yy+zz
         f (_type_): function to call in reaction to this event
     """
-    events[comb] = f
+    eventsOnAny[comb] = f
     print(f"Event '{comb}' added")
 
+def addEventOnOnly(comb: str, f: Callable):
+    eventsOnOnly[comb] = f
+    print(f"Event '{comb}' added")
 
 def devEventCallback(data):
     """Callback that's called by DevEvent whener any input events occurs on any devices.
