@@ -2,14 +2,11 @@
     `PYTHONPATH=PYTHONPATH:../src python main.py`
 """
 
-from totoBotKey.runtime import Runtime
 import signal
+from totoBotKey.runtime import Runtime
 
-def sigint(s, f):
-    r.stopFlag = True
 
 r = Runtime()
 
-signal.signal(signal.SIGINT, sigint)
-
 r.runWith("myScript")
+

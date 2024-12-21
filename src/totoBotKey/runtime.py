@@ -1,25 +1,22 @@
 """Runtime
 """
 
+import time
 import signal
-from evdevUtils import DevEvent
+import evdevUtils
 from ydotoolUtils import Ydotoold
 from .parser import Parser, Keys
-from .input import InputManager
+import totoBotKey.inputs as inputs
 
 
 class Runtime:
     """_summary_"""
 
     ydo: Ydotoold = None
-    stopFlag: bool
+    running: bool
 
     def __init__(self):
-        self.stopFlag = False
-        pass
-
-    def __init__(self):
-        pass
+        self.running = True
 
     def runWith(self, script: str):
         """Runs TotoBotKey with a given script name, assuming the name
@@ -35,8 +32,8 @@ class Runtime:
             exit()
 
         Keys.getInstance()
-        DevEvent.getInstance()
-        InputManager.getInstance()
+        evdevUtils.init()
+        inputs.init()
 
         p = Parser.parseScript(script)
 
@@ -50,17 +47,20 @@ class Runtime:
         p.pythonClass.init()
 
         # Starting to listen to devices
-        DevEvent.listenToAll(InputManager.devEventCallback)
+        evdevUtils.listenToAll(inputs.devEventCallback)
 
-        while not self.stopFlag:
-            pass
+        self.running = True
+        while self.running:
+            time.sleep(1)
 
+        print("Shutting down...")
         self.cleanUp()
 
     def cleanUp(self):
-        """Cleans up"""        
-        DevEvent.cleanUp()
-        InputManager.cleanUp()
+        """Cleans up"""
+        print("Cleaning up...")
+        evdevUtils.cleanUp()
+        inputs.cleanUp()
 
 
 if __name__ == "__main__":
