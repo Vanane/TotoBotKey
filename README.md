@@ -30,6 +30,7 @@ By order of priority :
 - Refactor and clean codebase (lmao)
 - Add support for each ydotool command options (delaying keys, sending keydown/up, etc.)
 - Add keydown/keyup events
+  - i'm starting to think that it doesn't make much sense
 - Encapsulate decorations into a class
 - Better handling of keyboard layout
   - Current solution : "you figure out your own keys dictionary"

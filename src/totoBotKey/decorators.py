@@ -1,11 +1,19 @@
 """decorators
 """
 
-import totoBotKey.inputs as inputs
+from enum import Enum
+from . import inputs
 from . import parser
 
 
-def on(*bind):
+class BindTypes(Enum):
+    ANY = 1
+    """The binding will trigger without regard for any other key states but the binding"""
+    ONLY = 2
+    """The binding will trigger if those keys are the only keys pressed currently"""
+
+
+def on(*bind, bType:BindTypes = BindTypes.ONLY):
     """
     Binds a function to a particular combination of keypresses, with a naturalish syntax.
     Some keys can't be used through this decorator, such as Delete, Insert, F1-12, etc.
@@ -13,42 +21,25 @@ def on(*bind):
         "^+!#a" : Ctrl + Shift + Alt + Super/Win/Menu + A Key
     """
     def d(f):
-        (chars, mods) = parser.parseEventDecorator(*bind)
-        keys = list(map(str, sorted(mods + chars)))
-        inputs.addEventOnAny("+".join(keys), f)
-        return f
-
-    return d
-
-def onAny(*bind):
-    return on(bind)
-
-def onOnly(*bind):
-    """
-    Binds a function to a particular combination of keypresses, calling it only when this combination and nothing else is pressed.
-    Example :
-    >>> on("a")     # Triggers whenever A is pressed, along with other keys.
-    >>> onOnly("a") # Triggers whenever A and only A is pressed. "Ctrl+A" or "Shift+A" among others, won't trigger it.
-    """
-
-    def d(f):
-        (chars, mods) = parser.parseEventDecorator(*bind)
-        keys = list(map(str, sorted(mods + chars)))
-        inputs.addEventOnAny("+".join(keys), f)
+        match bType:
+            case BindTypes.ANY:
+                (chars, mods) = parser.parseEventDecorator(*bind)
+                inputs.addEventOnAny(sorted(chars + mods), f)
+            case BindTypes.ONLY:
+                (chars, mods) = parser.parseEventDecorator(*bind)
+                inputs.addEventOnOnly(sorted(chars + mods), f)
         return f
     return d
 
 
-def onRaw(bind: str):
+def onRaw(*bind):
     """
     Binds a function to a particular combination of keys given explicitely,
     bypassing the translation
     Example :
-        "KEY_LEFTCTRL+KEY_LEFTALT+KEY_DELETE" : Ctrl + Alt + Delete Key
+    >>> onRaw(KEY_LEFTCTRL, KEY_LEFTALT, KEY_DELETE) : Ctrl + Alt + Delete Key
     """
-
     def d(f):
-        inputs.addEventOnAny("+".join(sorted(bind.split("+"))), f)
+        inputs.addEventOnOnly(sorted(bind), f)
         return f
-
     return d

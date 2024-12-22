@@ -53,7 +53,7 @@ def subscribeToAll(cb: Callable):
 
     for d in devNames:
         try:
-            devices.append(dev := InputDevice(f"{DEV_DIR}{d}"))            
+            devices.append(dev := InputDevice(f"{DEV_DIR}{d}"))
             print(f"- {dev.name}")
         except OSError as e:
             print(e)
