@@ -4,33 +4,37 @@
 import os
 import time
 
-from ydotoolUtils.enums import CLICK_BTN_CODES
 
-"""
-Ydotool native functions
-"""
+def _call(*args):
+    c = f"ydotool {' '.join(list(map(str, args)))}"
+    os.system(c)
 
-
-def click(btn=None):
+def click(btn):
     """Calls ydotool to simulate a click at the given coordinates
 
     Args:
         x (int): Position X on the viewport
         y (int): Position Y on the viewport
     """
-    if not btn in CLICK_BTN_CODES:
-        raise ValueError(f"Mouse button '{btn}' not in {list(CLICK_BTN_CODES.keys())}")
-    os.system(f"ydotool click {CLICK_BTN_CODES[btn]}")
+    _call("click", btn)
 
 
-def mousemove(x: int, y: int):
+def mousemove(x: int, y: int, a=True):
     """Calls ydotool to simulate a mouse movement from its current point, to the given coordinates
 
     Args:
         x (int): Position X on the viewport
         y (int): Position Y on the viewport
     """
-    os.system(f"ydotool mousemove {x} {y}")
+    
+    # Workarounds for ydotool's broken mousemove command :
+    # --absolute option doesn't work and will place the mouse at the top-left corner.
+    # A workaround is to make two commands and use the relative option, from 0-0 coordinates
+    # 
+    # ydotool seems to multiply the coordinates by 2, so dividing arguments by 2 fixes it.
+    if a:
+        _call("mousemove", "-x", -8192, "-y", -8192)
+    _call("mousemove", "-x", x / 2, "-y", y / 2)
 
 
 def type_(text: str):
@@ -39,7 +43,7 @@ def type_(text: str):
     Args:
         text (str): Text to type
     """
-    os.system(f"ydotool type {text}")
+    _call("type", text)
 
 
 def key(keys: str | list):
@@ -50,26 +54,4 @@ def key(keys: str | list):
     """
     if type(keys) is list:
         keys = " ".join(keys)
-    os.system(f"ydotool key {keys}")
-
-
-"""
-Additionnal functions
-"""
-
-
-def wait(ms):
-    """Waits for a given time, in milliseconds.
-
-    Args:
-        ms (int): Time to wait, in milliseconds
-    """
-    time.sleep(int(ms) / 1000)
-
-
-def pressKeys(keys: str | list):
-    l = list()
-    for s in ["1", "0"]:
-        for k in keys:
-            l.append(f"{k}:{s}")
-    key(l)
+    _call("key",  keys)

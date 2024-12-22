@@ -7,7 +7,7 @@ from multiprocessing.managers import SharedMemoryManager
 from typing import Callable, Tuple, List, Dict
 from evdevUtils import getDevices, listener, enums
 from evdev import InputDevice
-from ydotoolUtils import keys
+from .enums import Key
 
 class Event:
     binding:Tuple[int]
@@ -32,7 +32,7 @@ ydotoold: InputDevice
 
 
 def init():
-    global keyStates, events, events, eventFutures, eventsPool, sharedMem, ydotoold
+    global keyStates, events, eventFutures, eventsPool, sharedMem, ydotoold
 
     keyStates = 0
     events = dict()
@@ -41,12 +41,37 @@ def init():
 
     ydotoold = getDevices(lambda d: d.name == "ydotoold virtual device")
 
+def getBindFromKeys(keys:list):
+    """Returns a bitfield representing a binding of keycodes. The bits at the slots of each keycode's code is equal to 1"""
+    r = 0
+    for k in keys:
+        r |= (1<<k)
+    return r
+
+
+def addEvent(bind:list, f: Callable, exclusively:bool = True):
+    """Adds an user-defined event to the manager.
+
+    Args:
+        keys (str): combination of keycodes that should trigger the function
+        f (_type_): function to call in reaction to this event
+    """
+    events[int(not exclusively)|(getBindFromKeys(bind)<<1)] = Event(bind, f, True)
+    print(f"Event Any '{bind}' added")
+
+
+def isPressed(key:int | list):
+    """Return the state of a given keycode"""
+    return keyStates & getBindFromKeys(key if key is list else [key])
+
 
 def pressed(data) -> bool:
+    """Updates the keyStates state to whichever key has just been pressed"""
     global keyStates
     keyStates = keyStates|(1<<data.code)
 
 def released(data) -> bool:
+    """Updates the keyStates state to whichever key has just been released"""
     global keyStates
     keyStates = keyStates&~(1<<data.code)
 
@@ -76,51 +101,16 @@ def checkUserEvents(bind: int, curKeysBind: int) -> bool:
 
 
 def eventThread(event: Callable):
+    """Event thread"""
     try:
         event()
     except Exception:
         traceback.print_exc()
 
-def isPressed(key:int | list):
-    """Return the state of a given keycode"""
-    return keyStates & getBindFromKeys(key if key is list else [key])
-
-def getBindFromKeys(keys:list):
-    r = 0
-    for k in keys:
-        r |= (1<<k)
-    return r
-
-
-def addEventOnAny(bind:list, f: Callable):
-    """Adds an user-defined event to the manager.
-
-    Args:
-        keys (str): combination of keycodes that should trigger the function
-        f (_type_): function to call in reaction to this event
-    """
-    events[1|(getBindFromKeys(bind)<<1)] = Event(bind, f, True)
-    print(f"Event Any '{bind}' added")
-
-def addEventOnOnly(bind:list, f: Callable):
-    events[0|(getBindFromKeys(bind)<<1)] = Event(bind, f, False)
-    print(f"Event Only '{bind}' added")
-
-
 def playback(data):
     """Plays an event on ydotoold device"""
     ydotoold.write(data.type, data.code, data.value)
     ydotoold.write(enums.EV_SYN, 0, 0) # Writing a SYN event to make sure that the playback effect is immediate. Delay happens otherwise.
-
-
-def cleanUp():
-    """Cleans thread pool up"""
-    print("Shutting down inputs thread pool...")
-    for k in keys.keysDict:
-        ydotoold.write(enums.EV_KEY, keys.keysDict[k], 0)
-    ydotoold.write(enums.EV_SYN, 0, 0)
-    eventsPool.shutdown()
-
 
 def callback(data):
     """Callback that's called by DevEvent whener any input events occurs on any devices.
@@ -157,3 +147,12 @@ def callback(data):
 
     if not event:
         playback(data)
+
+
+def cleanUp():
+    """Cleans thread pool up"""
+    print("Shutting down inputs thread pool...")
+    '''for k in Key:
+        ydotoold.write(enums.EV_KEY, getattr(Key, k), 0)'''
+    ydotoold.write(enums.EV_SYN, 0, 0)
+    eventsPool.shutdown()
