@@ -1,9 +1,8 @@
-from ydotoolUtils.ydotool import wait, type_, click
 from totoBotKey.parser import BaseScript
-import totoBotKey.inputs as inputs
-from totoBotKey.decorators import on, BindTypes
-import ydotoolUtils.keys as keys
-
+from totoBotKey import inputs
+from totoBotKey.decorators import on, BindType
+from totoBotKey.enums import Key, Button
+from totoBotKey.commands import type_, click, wait, clickAt
 
 class MyScript(BaseScript):
     @on("+a")
@@ -11,7 +10,7 @@ class MyScript(BaseScript):
     def doSmth():
         type_("Shift+A got hit")
 
-    @on("a", bType=BindTypes.ANY)
+    @on("a", bType=BindType.ANY)
     @staticmethod
     def doSmth4():
         type_("A got hit")
@@ -22,19 +21,17 @@ class MyScript(BaseScript):
         wait(1000)
         print("One second has passed")
 
-    @on("BtnSide", bType=BindTypes.ANY)
+    @on("BtnSide", bType=BindType.ANY)
     @staticmethod
-    def doSmth3():
-        while inputs.isPressed(keys.BTN_SIDE):
-            click("BtnLeft")
+    def doSmth3():        
+        while inputs.isPressed(Key.BTN_SIDE):
+            click(Button.BtnLeft)
             # wait(15)
 
-    @on("BtnExtra")
+    @on("BtnExtra", bType=BindType.ANY)
     @staticmethod
-    def doSmth4():
-        print("prout")
-        pass
-
+    def doSmth5():
+        clickAt(Button.BtnLeft, 400, 400)
 
 
     @staticmethod

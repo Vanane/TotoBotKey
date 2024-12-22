@@ -3,7 +3,7 @@ analysis to deem it TotoBotKey-able."""
 
 import importlib
 from types import ModuleType
-from ydotoolUtils import keys
+from . import keys
 
 
 class BaseScript:

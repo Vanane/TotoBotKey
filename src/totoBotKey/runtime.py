@@ -1,15 +1,11 @@
 """Runtime
 """
-
-import time
 import evdevUtils
-from ydotoolUtils import ydotoold, keys
-from totoBotKey import parser
-from totoBotKey  import inputs
+from ydotoolUtils import ydotoold
+from totoBotKey import keys, parser, inputs
 
 
 running: bool
-
 
 def __init__():
     """Initializes the runtime environment"""
