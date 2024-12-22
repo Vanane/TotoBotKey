@@ -4,8 +4,8 @@
 import time
 import evdevUtils
 from ydotoolUtils import ydotoold, keys
-from . import parser
-from . import inputs
+from totoBotKey import parser
+from totoBotKey  import inputs
 
 
 running: bool
@@ -31,9 +31,13 @@ def runWith(script: str):
         exit()
 
     keys.init()
+
     evdevUtils.init()
+
     inputs.init()
+
     parser.init()
+
     p = parser.parseScript(script)
 
     if parser.hasErrors():
@@ -45,7 +49,7 @@ def runWith(script: str):
     # Calling the script's initial setup
     p.pythonClass.init()
 
-    evdevUtils.subscribeToAll(inputs.devEventCallback)
+    evdevUtils.subscribeToAll(inputs.callback)
 
     running = True
 

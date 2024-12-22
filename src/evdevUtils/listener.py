@@ -41,12 +41,11 @@ def subscribeToAll(cb: Callable):
     Args:
         cb (function): function that will handle any input events occuring on any hardware
     """
-    global running, devices, deviceFutures, devicePool, callback
+    global devices, deviceFutures, devicePool, callback
 
     callback = cb
 
     print("Initializing devices...")
-    running = True
 
     devNames = list(filter(lambda d: d.endswith("-kbd"), os.listdir(DEV_DIR))) + list(
         filter(lambda d: d.endswith("-mouse"), os.listdir(DEV_DIR))
@@ -54,7 +53,7 @@ def subscribeToAll(cb: Callable):
 
     for d in devNames:
         try:
-            devices.append(dev := InputDevice(f"{DEV_DIR}{d}"))            
+            devices.append(dev := InputDevice(f"{DEV_DIR}{d}"))
             print(f"- {dev.name}")
         except OSError as e:
             print(e)
@@ -74,6 +73,8 @@ def listen() -> None:
     
     print("Ready !")
 
+    running = True
+
     try:
         while running:
             for dev in devices:
@@ -82,7 +83,8 @@ def listen() -> None:
                     devicePool.submit(callback, data)
     except Exception as e:
         print(e)
-        pass
+        running = False
+        
     for dev in devices:
         dev.ungrab()
 
