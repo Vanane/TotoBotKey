@@ -129,10 +129,12 @@ def callback(data):
     event = False
     match int(data.type):
         case enums.EV_KEY:
-            if data.value == 0 and data.code == 1:
-                #return os.kill(os.getpid(), signal.SIGINT)
+            if data.code == 1 and data.value == 0 and isPressed(29): # if Ctrl+Esc
                 listener.running = False
                 playback(data) # Playing back the "Esc release" event
+                datb = data
+                datb.code = 29
+                playback(datb) # Playing a "Ctrl release" event, just in case the timing makes it wrong
                 return
             match data.value:
                 case 1:
