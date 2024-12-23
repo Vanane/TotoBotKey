@@ -34,4 +34,8 @@ By order of priority :
 - Encapsulate decorations into a class
 - Better handling of keyboard layout
   - Current solution : "you figure out your own keys dictionary"
+  - Final solution : "let's use input.h because ydotool said so"
 - Add a screenshot function (or a library that does just that on Wayland)
+  - "You figure out your own screenshot function"
+- Provide a basic GUI to manage running scripts
+  - Maybe also a killswitch which you can activate with a shortcut, a click or just hovering your mouse above

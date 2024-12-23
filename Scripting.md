@@ -36,15 +36,33 @@ Moves the mouse across the viewport (prolly broken too).
 
 Options : No options yet.
 
+Known bugs :
+- Option `absolute` is broken on ydotool's side right now. A workaround consists in using two mousemove commands at once, one to set the cursor at (0,0), the other to move relatively to that.
+- Distances in pixels seem to be doubled for no given reason. It's taken in account in the code, but still.
+    - This might be an issue on multiple monitors settings
+- The cursor might not be able to move from one monitor to another, if you're using multiple monitors. The cursor would move relatively to the monitor it's present on.
+
+## Namespaces
+There are several modules to import in order to script properly :
+```py
+from totoBotKey.parser import BaseScript                        # Class to inherit the script from
+from totoBotKey.inputs import isPressed                         # Control functions to check key and event states
+from totoBotKey.decorators import on, onRaw, BindType           # Function decorators and enums associated with it
+from totoBotKey.enums import Key, Button                        # Input-event-codes.h key and button enums (created dynamically)
+from totoBotKey.commands import type_, click, wait, clickAt     # Ydotool and additionnal automation functions
+```
+
 ## Events
-TotoBotkey defines two decorators for your script functions : @on and @onExplicit.
+TotoBotkey defines two decorators for your script functions : @on and @onRaw.
 It allows for a quick binding between a given function and an event listener to a given key combination.
 
 **The parser will assume all of event-bound functions are static.**
 
 ### @on
-@on takes a single argument, which mimmicks the syntax of AutoHotKey's own...Hot keys.
-This allows for quick, but otherwise fairly incomplete bindings.
+@on takes N arguments, each corresponding to a combination of modifiers and one key to bind a function to. It uses a syntax similar to the syntax of AutoHotKey's own...Hot keys.
+This allows for quick, but fairly incomplete bindings.
+
+Although each argument can be given with its own modifiers, the final binding will accumulate all the modifiers and apply to all of the keys given.
 
 Each character either represents the alphanumerical character that you want to listen to, or a modifier key (Ctrl, Alt, Shift, Super).
 Giving several characters allows to listen for a specific combination of keystrokes.
@@ -56,41 +74,65 @@ Giving several characters allows to listen for a specific combination of keystro
 |+|Left Shift|KEY_LEFTSHIFT (42) |
 |!|Left Alt|KEY_LEFTALT (56)|
 |#|Menu/Super/Windows key|KEY_MENU (125)|
-|BtnLeft, BtnRight, BtnWheel, Btn4, Btn5|Physical buttons of the mouse|BTN_LEFT, BTN_RIGHT, BTN_WHEEL, BTN_4, BTN_5|
+|BtnLeft, BtnRight, BtnWheel, Btn4, Btn5, BtnSide, BtnExtra|Physical buttons of the mouse|BTN_LEFT, BTN_RIGHT, BTN_WHEEL, BTN_4, BTN_5, BTN_SIDE, BTN_EXTRA|
 
 Additional keywords might be supported if I feel the need for it. Otherwise, @onExplicit is a catch-all alternative.
 
-### @onExplicit
-@onExplicit takes a single argument that allows for explicit keycode combination.
+Examples :
+```py
+# When Ctrl+Shift+P is pressed, do something
+@on("^+p") 
+@staticmethod
+def doSmth():
+    # Do smth...
+
+# When Ctrl+Shift+A+B+C is pressed, do something
+@on("a", "^b", "+c") 
+@staticmethod
+def doSmth():
+    # Do smth...    
+```
+
+#### Bind types
+@on also accepts a named `bType` argument.
+When set to `BindType.ANY`, a binding will be able to trigger whenever its keys are pressed, without regard for any other key state.
+When set to `BindType.ONLY`, a binding will only trigger specifically when its keys are all pressed, and nothing else.
+
+Examples :
+```py
+# This will trigger only when A, and only A, gets pressed. No other combination will work : Ctrl+A, Shift+A, A+B, A+LeftClick...
+@on("a") 
+@staticmethod
+def pressA():
+    # Do smth...
+
+# This will trigger whenever A gets pressed, independently from any other key.
+@on("a", bType=BindType.ANY) 
+@staticmethod
+def pressAnyA():
+    # Do smth...
+
+# Which means that when this binding triggers, pressAnyA() most likely will trigger as well, since A was pressed.
+@on("^a") 
+@staticmethod
+def pressCtrlA():
+    # Do smth...
+```
+
+### @onRaw
+@onRaw takes N arguments that allows for explicit keycode combination.
 Many keys, such as Delete, Insert, Num Lock, etc., are difficult to interpret, unless thair names are hard-written in the parser (such as `BtnLeft` above).<br>
-@onExplicit gives a way to pass a combination of keycodes directly and avoid parsing an expression, while also giving full flexibility.
+@onRaw gives a way to pass a combination of keycodes directly and avoid parsing an expression, while also giving full flexibility.
 
 Each keycode must be separated by a `+` character.
 
-Example : `29+25` will bind to `Ctrl+P`
-
-## Example
+Examples :
 ```py
-from totoBotKeys import *
-
-class MyScript(BaseScript):
-
-    @on("^a")
-    @staticmethod
-    def doSmth():
-        type("Ctrl+A has been pressed")
-    
-
-    @on("!a")
-    @staticmethod
-    def doSmth2():
-        type("Shift+A has been pressed")
-        wait(1000)
-        type("One second has passed")
-    
-    @staticmethod
-    def init():
-        print("This is the script's initiation code")
-
-
+# When Ctrl+Shift+P is pressed, do something
+@onRaw(KEY_LEFTCTRL, KEY_LEFTSHIFT, KEY_P)
+@staticmethod
+def doSmth():
+    # Do smth...
 ```
+#### Bind types
+Just as @on, @onRaw also takes a `bType` argument, and the same effects apply.
