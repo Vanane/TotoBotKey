@@ -3,11 +3,13 @@ requires = ['evdev>=1.7.1', 'bitstring>=4.2.3', 'setuptools>=61.0']
 
 [project]
 name = 'TotoBotKey'
-version = '0.0.1'
+version = '0.0.2'
 authors = [{name='Vanane', email='vanane@vanane.net'}]
 description = 'Just like AutoHotKey, on Wayland (and probably X)'
+dependencies = ['evdev>=1.7.1', 'bitstring>=4.2.3', 'setuptools>=61.0']
+
 readme = 'README.md'
-requires-python = '>=3.9'
+requires-python = '>=3.12'
 classifiers = [
     'Operating System :: POSIX :: Linux',
     'Programming Language :: Python :: 3',
