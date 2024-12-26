@@ -2,19 +2,18 @@
 requires = ['evdev>=1.7.1', 'bitstring>=4.2.3', 'setuptools>=61.0']
 
 [project]
-Name = ''
-Version = ''
-Authors = [{name='Vanane', email='vanane@vanane.net'}]
-Description = 'Just like AutoHotKey, on Wayland (and probably X)'
-Readme = 'README.md'
+name = 'TotoBotKey'
+version = '0.0.1'
+authors = [{name='Vanane', email='vanane@vanane.net'}]
+description = 'Just like AutoHotKey, on Wayland (and probably X)'
+readme = 'README.md'
 requires-python = '>=3.9'
-Classifiers = [
+classifiers = [
     'Operating System :: POSIX :: Linux',
     'Programming Language :: Python :: 3',
-    'Topic :: Desktop Environment',
-    'Topic :: Automation',
-    'Topic :: Display Server'
+    'Topic :: Desktop Environment'
 ]
+keywords = ['Automation', 'Wayland']
 
 [project.urls]
 Homepage = 'https://github.com/Vanane/TotoBotKey'
