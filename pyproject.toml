@@ -1,0 +1,21 @@
+[build-system]
+requires = ['evdev>=1.7.1', 'bitstring>=4.2.3', 'setuptools>=61.0']
+
+[project]
+Name = ''
+Version = ''
+Authors = [{name='Vanane', email='vanane@vanane.net'}]
+Description = 'Just like AutoHotKey, on Wayland (and probably X)'
+Readme = 'README.md'
+requires-python = '>=3.9'
+Classifiers = [
+    'Operating System :: POSIX :: Linux',
+    'Programming Language :: Python :: 3',
+    'Topic :: Desktop Environment',
+    'Topic :: Automation',
+    'Topic :: Display Server'
+]
+
+[project.urls]
+Homepage = 'https://github.com/Vanane/TotoBotKey'
+issues = 'https://github.com/Vanane/TotoBotKey/issues'
