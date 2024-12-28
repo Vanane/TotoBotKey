@@ -55,14 +55,35 @@ def wait(ms):
     time.sleep(int(ms) / 1000)
 
 
-def pressKeys(keys: str | list):
-    l = list()
-    for s in ["1", "0"]:
-        for k in keys:
-            l.append(f"{k}:{s}")
-    key(l)
+def pressKeys(keys: int | list[int]):
+    """
+    Operates all keydowns, then all keyups, for a given key or list of keys.
+    
+    Args:
+    keys (int|list[int]): A keycode, or a list of keycodes, to press
+    """
+    l1 = list()
+    l0 = list()
+    if not isinstance(keys, list):
+        keys = [keys]
+    s = "1"
+    for k in keys:
+        l1.append(f"{k}:{s}")
+    s = "0"
+    for k in keys:
+        l0.append(f"{k}:{s}")
+    l0.reverse()
+    key(l1 + l0)
 
 
 def clickAt(btn:Button, x:int, y:int):
+    """
+    Operates a mousemove(x, y), then a click(btn), in absolute position, the origin being the topmost-leftest corner
+    
+    Args:
+    btn (totoBotKey.enums.Button): Button to press
+    x (int): Absolute X position on the viewport
+    y (int): Absolute Y position on the viewport
+    """
     mousemove(x, y)
     click(btn)

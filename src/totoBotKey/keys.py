@@ -37,7 +37,7 @@ def readFromDump(dump:object):
 
     with open(DUMP_FILE, encoding="utf-8") as f:
         while l := f.readline().split():
-            try:                
+            try:
                 keysDict[l[1]] = int(l[2], 0)
 
                 setattr(dump, l[1], int(l[2], 0))

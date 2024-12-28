@@ -2,7 +2,7 @@ from totoBotKey.parser import BaseScript
 from totoBotKey.inputs import isPressed
 from totoBotKey.decorators import on, BindType
 from totoBotKey.enums import Key, Button
-from totoBotKey.commands import type_, click, wait, clickAt
+from totoBotKey.commands import type_, click, wait, clickAt, pressKeys
 
 class MyScript(BaseScript):
     @on("+a")
@@ -30,6 +30,17 @@ class MyScript(BaseScript):
         """Example : concrete example of a macro to spamclick the left button, while one of the extra buttons is held down"""
         while isPressed(Key.BTN_SIDE):
             click(Button.BtnLeft)
+
+    @on("+t")
+    @staticmethod
+    def test():
+        wait(500)
+        clickAt(Button.BtnLeft, 800, 400)
+        wait(500)
+        pressKeys([Key.KEY_A, Key.KEY_B])
+        wait(500)
+        pressKeys(Key.KEY_C)
+        wait(500)
 
     @staticmethod
     def init():
