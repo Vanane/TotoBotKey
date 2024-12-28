@@ -5,17 +5,24 @@ it also implements events detection to some extend. These are managed by the evd
 
 **Since a good portion of it is based on ydotools, the same keyboard limitations and workarounds may apply.**
 
-# Beninging
+## Beninging
 Any script must inherit from the totoBotKeys.parser.BaseScript class, as that is how TotoBotKey's parser will identify it and interpret its contents.
 
 **Any scripts that inherits this class must be thought of as static, or written as a singleton. References to `self` aren't supported for now.**
 
-## Ydotool
+## ⚠️ Killswitch
+There's an hardcoded killswitch that will (try to) reset all key states, clean up all threads and jobs, and remove locks from all the devices :
+- `Ctrl+Escape`, or `29+1` in keycodes.
+
+This is in case you messed things up in your macros, or a bug is encountered
+
+## Commands
 *Docs about [ydotool](https://github.com/ReimuNotMoe/ydotool) can be found on their Github repository directly.*
 
 This part will address what's supported by TotoBotKey, and not ydotool's capabilities.
 
-ydotool defines several commands to simulate device inputs. 
+ydotool defines several commands to simulate device inputs.
+
 ### type
 Allows to write text directly, rather than send keystrokes one after the other.
 
@@ -36,11 +43,10 @@ Moves the mouse across the viewport (prolly broken too).
 
 Options : No options yet.
 
-Known bugs :
-- Option `absolute` is broken on ydotool's side right now. A workaround consists in using two mousemove commands at once, one to set the cursor at (0,0), the other to move relatively to that.
-- Distances in pixels seem to be doubled for no given reason. It's taken in account in the code, but still.
-    - This might be an issue on multiple monitors settings
-- The cursor might not be able to move from one monitor to another, if you're using multiple monitors. The cursor would move relatively to the monitor it's present on.
+### clickAt
+Soon™️
+
+###
 
 ## Namespaces
 There are several modules to import in order to script properly :

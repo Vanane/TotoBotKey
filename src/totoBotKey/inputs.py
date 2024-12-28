@@ -120,8 +120,8 @@ def callback(data):
         data (tuple): Event data, as defined in the Linux [Userspace API](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/input.h)
     """
     global ydotoold
-
-    if data.code in [272, 273]:
+    # Excluding mouse clicks and mouse movements from macros, for soft lock reasons
+    if data.code in [272, 273] or data.type in [enums.EV_ABS, enums.EV_REL]:
         return playback(data)
 
     # Has an event been fired with this data ?
