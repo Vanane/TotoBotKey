@@ -52,6 +52,6 @@ def key(keys: str | list):
     Args:
         keys (str): Keys to strike all at once
     """
-    if type(keys) is list:
+    if isinstance(keys, list):
         keys = " ".join(keys)
     _call("key",  keys)
