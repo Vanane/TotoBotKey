@@ -100,7 +100,6 @@ def cleanUp():
         while f.running():
             time.sleep(100)
     for d in devices:
-        d.ungrab()
         d.close()
     devicePool.shutdown()
 

@@ -7,11 +7,6 @@ from totoBotKey import keys, parser, inputs
 
 running: bool
 
-def __init__():
-    """Initializes the runtime environment"""
-    global running
-    running = False
-
 
 def runWith(script: str):
     """Runs TotoBotKey with a given script name, assuming the name

@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Main File",
+            "name": "TotoBotKey Example",
             "type": "debugpy",
             "request": "launch",
             "program": "examples/main.py",
@@ -13,6 +13,17 @@
             "env": {
                 "PYTHONPATH": "./src"
             }
+        },
+        {
+            "name": "Recorder Example",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "examples/recorder.py",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "./src"
+            }
         }
+
     ]
 }
