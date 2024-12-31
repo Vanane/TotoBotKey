@@ -1,6 +1,9 @@
 [build-system]
 requires = ['evdev>=1.7.1', 'bitstring>=4.2.3', 'setuptools>=75.0']
 
+[tool.setuptools.packages.find]
+include = ['totoBotKey', 'evdevUtils', 'ydotoolUtils']
+
 [project]
 name = 'TotoBotKey'
 version = '0.0.3'
