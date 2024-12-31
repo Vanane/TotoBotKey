@@ -35,8 +35,8 @@ def init():
 
 
 def subscribeToAll(cb: Callable):
-    """Runs as many processes as there are detected hardware mouses and keyboards,
-    to subscribe and then listen to any of their input events.
+    """Reads into /dev/input/by-id, and adds every device considered to be a keyboard or a mouse by udev, to `listener.devices`.
+    Also sets `listener.callback`.
 
     Args:
         cb (function): function that will handle any input events occuring on any hardware
@@ -62,14 +62,15 @@ def subscribeToAll(cb: Callable):
 
 
 
-def listen() -> None:
-    """Subscribes to a given device's input events, then listens to it indefinitely"""
+def listen(grab:bool = True) -> None:
+    """Listens to each device present in `listener.devices`, calling `listener.callback()` for each input event."""
     global devicePool, devices, running, callback
 
     devicePool = ThreadPoolExecutor(max_workers=20)
 
-    for dev in devices:
-        dev.grab()
+    if grab:
+        for dev in devices:
+            dev.grab()
     
     print("Ready !")
 
@@ -85,12 +86,13 @@ def listen() -> None:
         print(e)
         running = False
         
-    for dev in devices:
-        dev.ungrab()
+    if grab:
+        for dev in devices:
+            dev.ungrab()
 
 
 def cleanUp():
-    """Cleans up the devices and threads used by the module"""
+    """Cleans up the device locks and threads used by the module"""
     global devicePool, deviceFutures, devices, running
     running = False
     print("Shutting down listener thread pool...")
@@ -98,6 +100,7 @@ def cleanUp():
         while f.running():
             time.sleep(100)
     for d in devices:
+        d.ungrab()
         d.close()
     devicePool.shutdown()
 
