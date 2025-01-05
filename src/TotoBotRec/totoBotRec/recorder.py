@@ -25,7 +25,20 @@ class KeyType(Enum):
 class Record():
     """"""
     type_: RecordType
+
     args: list
+    """Contains details corresponding to type_ :
+    - WAIT :        0 => delay
+
+    - CLICK :       0 => int : button
+                    1 => (int, int) : position
+
+    - MOUSEMOVE :   0 => (int, int) : start position
+                    1 => (int, int) : end position
+
+    - KEY :         0 => int : keycode
+                    1 => KeyType : key status
+    """
 
     def __init__(self, type_:RecordType, args:list):
         """.ctor"""
@@ -115,11 +128,7 @@ def _handleInput(data:InputEvent):
         # If mouse move, ignore. Mouse movements are handled when the position changed compared to the previous event
         global _lastTime, _lastEvent, _waitHandler, _cursorHandler, _keyHandler, _killswitch
 
-        _handleKillswitch(data)
-
-        if _killswitch == getBindFromKeys([1, 29]):
-            listener.running = False
-            return
+        _killswitchHandler(data)
 
         _waitHandler(data)
 
@@ -196,11 +205,15 @@ def _handleKey(data:InputEvent):
             records.append(Record(RecordType.KEY, [data.code, data.value]))
 
 
-def _handleKillswitch(data:InputEvent):
+def _killswitchHandler(data:InputEvent):
     global _killswitch
 
     if data.type == evs.EV_KEY and data.code in[1, 29]:
         _killswitch = _killswitch|(1<<data.code) if data.value == 1 else _killswitch&~(1<<data.code)
+
+    if _killswitch == getBindFromKeys([1, 29]):
+        listener.running = False
+        return
 
 
 def handleExit():
@@ -211,6 +224,7 @@ def handleExit():
             if records[i - 1].args[0] in [1, 29] and records[i - 2].args[0] in [1, 29]:
                 records.pop(i - 1)
                 records.pop(i - 2)
-                i -= 1
+                break
+            i -= 1
     except Exception:
         pass
