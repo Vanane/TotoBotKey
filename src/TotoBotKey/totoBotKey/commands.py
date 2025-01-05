@@ -38,18 +38,11 @@ def pressKeys(keys: int | list[int]):
     Args:
     keys (int|list[int]): A keycode, or a list of keycodes, to press
     """
-    l1 = list()
-    l0 = list()
     if not isinstance(keys, list):
         keys = [keys]
-    s = "1"
-    for k in keys:
-        l1.append(f"{k}:{s}")
-    s = "0"
-    for k in keys:
-        l0.append(f"{k}:{s}")
-    l0.reverse()
-    key(l1 + l0)
+
+    keydown(keys)
+    keyup([reversed(keys)])
 
 
 def clickAt(btn:Button, x:int, y:int):
@@ -63,3 +56,13 @@ def clickAt(btn:Button, x:int, y:int):
     """
     mousemove(x, y)
     click(btn)
+
+
+@contextmanager
+def holding(keys: int | list[int]):
+    """Do smth like that : with holding(keys...):"""
+    keydown(keys)
+    try:
+        yield
+    finally:
+        keyup(keys)
