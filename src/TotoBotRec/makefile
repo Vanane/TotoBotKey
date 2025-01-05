@@ -5,6 +5,11 @@ pub: publish
 publish:
 	python3 -m twine upload dist/*
 
+# Install built packages in the local venv
+install:
+	find dist/*.whl
+	python3 -m pip install dist/*.whl --force-reinstall
+
 clean:
 # Twine directories
 	- rm -rf ./dist
