@@ -1,14 +1,17 @@
 from totoBotKey.parser import BaseScript
 from totoBotKey.inputs import isPressed
-from totoBotKey.decorators import on, BindType
-from totoBotKey.enums import Key, Button
-from totoBotKey.commands import type_, click, wait, clickAt, pressKeys
+from totoBotKey.decorators import on, BindType, script
+from totoBotKey.commands import wait, clickAt, pressKeys
+from totoBotKey.keys import Key
+from totoBotKey.buttons import Button
+from totoBotKey.commandsraw import type_, key, mousemove, click
+
 
 class MyScript(BaseScript):
     @on("+a")
     @staticmethod
     def onShiftA():
-        """SExample : macro to type some text when specifically Shift+A is pressed"""
+        """Example : macro to type some text when specifically Shift+A is pressed"""
         type_("Shift+A got hit")
 
     @on("a", bType=BindType.ANY)
@@ -28,21 +31,20 @@ class MyScript(BaseScript):
     @staticmethod
     def spamClick():
         """Example : concrete example of a macro to spamclick the left button, while one of the extra buttons is held down"""
-        while isPressed(Key.BTN_SIDE):
-            click(Button.BtnLeft)
+        while isPressed(Button.EXTRA):
+            click(Button.LEFT)
 
     @on("+t")
     @staticmethod
     def test():
         wait(500)
-        clickAt(Button.BtnLeft, 800, 400)
+        clickAt(Button.LEFT, 800, 400)
         wait(500)
-        pressKeys([Key.KEY_A, Key.KEY_B])
+        pressKeys([Key.A, Key.B])
         wait(500)
-        pressKeys(Key.KEY_C)
+        pressKeys(Key.C)
         wait(500)
 
     @staticmethod
     def init():
         print("innit")
-

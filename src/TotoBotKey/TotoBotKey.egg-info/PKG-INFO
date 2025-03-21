@@ -1,3 +1,20 @@
+Metadata-Version: 2.4
+Name: TotoBotKey
+Version: 0.0.3
+Summary: Just like AutoHotKey, on Wayland (and probably X)
+Author-email: Vanane <vanane@vanane.net>
+Project-URL: Homepage, https://github.com/Vanane/TotoBotKey/tree/main/src/TotoBotKey
+Project-URL: issues, https://github.com/Vanane/TotoBotKey/issues?q=label%3Atotobotkey
+Keywords: Automation,Wayland,Macro
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Desktop Environment
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: evdev>=1.7.1
+Requires-Dist: bitstring>=4.2.3
+Requires-Dist: setuptools>=75.0
+
 # TotoBotKey
 ## Just like AutoHotKey !*
 *with a $0 budget and 8 hours of work

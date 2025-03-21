@@ -1,60 +1,244 @@
-import os
-
-from .enums import Key
-
-
-DUMP_FILE = "./input-event-codes.h"
-keysDict: dict
-
-
-def init():
-    if not os.path.exists(DUMP_FILE):
-        dumpKeys()
-
-    readFromDump(Key)
-
-
-def dumpKeys():
-    """Creates a cleaned local copy of the file located at
-    `/usr/include/linux/input-event-codes.h`, for later use."""
-    if not os.path.exists(DUMP_FILE):
-        print(
-            f"Extracting keyCodes from `/usr/include/linux/input-event-codes.h` into `{DUMP_FILE}`"
-        )
-        os.system(
-            f"cat /usr/include/linux/input-event-codes.h | gcc -dM -E - > {DUMP_FILE}"
-        )
-
-
-def readFromDump(dump:object):
-    """Reads the file created by dumpKeys() to instantiate a dictionary
-    of all keycodes that can be read and/or called in TotoBotKey.
-
-    dump(object): Object that will receive the dumped keycodes, as its own attributes
-    """
-    global keysDict
-    keysDict = dict()
-
-    with open(DUMP_FILE, encoding="utf-8") as f:
-        while l := f.readline().split():
-            try:
-                keysDict[l[1]] = int(l[2], 0)
-
-                setattr(dump, l[1], int(l[2], 0))
-            except Exception:
-                pass
-
-
-def get(keyName: str):
-    """Return the keycode representing the given key name, e.g. EV_KEY, SYN_BTN, etc."""
-    return getattr(Key, keyName, None)
-
-
-def KEY_(k: str) -> int:
-    """Returns the keycode representing the given key name"""
-    return int(get(f"KEY_{k.upper()}"))
-
-
-def BTN_(b: str) -> int:
-    """Returns the keycode representing the given mouse button name"""
-    return int(get(f"BTN_{b.upper()}"))
+class Key:
+    HIRAGANA = 91
+    QUESTION = 214
+    GRAVE = 41
+    SLEEP = 142
+    ZENKAKUHANKAKU = 85
+    LEFTMETA = 125
+    OPEN = 134
+    MACRO = 112
+    RIGHTMETA = 126
+    BATTERY = 236
+    PAGEDOWN = 109
+    CAPSLOCK = 58
+    SCROLLDOWN = 178
+    SWITCHVIDEOMODE = 227
+    PLAYPAUSE = 164
+    CAMERA = 212
+    MOVE = 175
+    CONNECT = 218
+    UWB = 239
+    PROG1 = 148
+    PROG2 = 149
+    PROG3 = 202
+    PROG4 = 203
+    HOME = 102
+    KPMINUS = 74
+    KATAKANA = 90
+    PROPS = 130
+    DELETEFILE = 146
+    KBDILLUMTOGGLE = 228
+    DOWN = 108
+    NUMLOCK = 69
+    EQUAL = 13
+    CONFIG = 171
+    PASTE = 135
+    RIGHT = 106
+    MAIL = 155
+    LEFTALT = 56
+    WWW = 150
+    KPEQUAL = 117
+    HENKAN = 92
+    FORWARD = 159
+    RIGHTALT = 100
+    SPORT = 220
+    POWER = 116
+    ENTER = 28
+    APOSTROPHE = 40
+    F10 = 68
+    VOLUMEDOWN = 114
+    END = 107
+    SENDFILE = 145
+    RIGHTSHIFT = 54
+    NEXTSONG = 163
+    KPSLASH = 98
+    BACK = 158
+    KP5 = 76
+    PAGEUP = 104
+    PLAY = 207
+    ESC = 1
+    KPPLUSMINUS = 118
+    SHOP = 221
+    LEFTSHIFT = 42
+    BASSBOOST = 209
+    BRIGHTNESS_CYCLE = 243
+    FILE = 144
+    TAB = 15
+    KPLEFTPAREN = 179
+    EDIT = 176
+    F12 = 88
+    _102ND = 86
+    MENU = 139
+    LINEFEED = 101
+    SPACE = 57
+    WAKEUP = 143
+    HOMEPAGE = 172
+    KPCOMMA = 121
+    ISO = 170
+    HANJA = 123
+    F11 = 87
+    F13 = 183
+    F14 = 184
+    F15 = 185
+    F16 = 186
+    F17 = 187
+    F18 = 188
+    F19 = 189
+    SEMICOLON = 39
+    F20 = 190
+    F21 = 191
+    F22 = 192
+    F23 = 193
+    F24 = 194
+    SAVE = 234
+    _0 = 11
+    _2 = 3
+    _3 = 4
+    _5 = 6
+    _6 = 7
+    _7 = 8
+    _8 = 9
+    _9 = 10
+    C = 46
+    E = 18
+    F = 33
+    G = 34
+    I = 23
+    J = 36
+    K = 37
+    L = 38
+    N = 49
+    O = 24
+    P = 25
+    Q = 16
+    S = 31
+    T = 20
+    U = 22
+    X = 45
+    Y = 21
+    Z = 44
+    F2 = 60
+    F5 = 63
+    RECORD = 167
+    F8 = 66
+    PAUSE = 119
+    EJECTCD = 161
+    COMPUTER = 157
+    REDO = 182
+    AGAIN = 129
+    _1 = 2
+    KBDILLUMDOWN = 229
+    MICMUTE = 248
+    COMMA = 51
+    PHONE = 169
+    A = 30
+    D = 32
+    H = 35
+    M = 50
+    XFER = 147
+    R = 19
+    SOUND = 213
+    V = 47
+    W = 17
+    PRINT = 210
+    COPY = 133
+    _4 = 5
+    BRIGHTNESSUP = 225
+    CLOSECD = 160
+    YEN = 124
+    REWIND = 168
+    HELP = 138
+    RFKILL = 247
+    B = 48
+    LEFTCTRL = 29
+    KPRIGHTPAREN = 180
+    KPPLUS = 78
+    DELETE = 111
+    KPASTERISK = 55
+    REFRESH = 173
+    RIGHTCTRL = 97
+    ALL_APPLICATIONS = 204
+    SEARCH = 217
+    STOP = 128
+    SEND = 231
+    BLUETOOTH = 237
+    ALTERASE = 222
+    CHAT = 216
+    VOLUMEUP = 115
+    BRIGHTNESS_AUTO = 244
+    UNDO = 131
+    REPLY = 232
+    CALC = 140
+    RESERVED = 0
+    KBDILLUMUP = 230
+    ROTATE_DISPLAY = 153
+    PREVIOUSSONG = 165
+    NEW = 181
+    SETUP = 141
+    VIDEO_NEXT = 241
+    PLAYCD = 200
+    MEDIA = 226
+    COMPOSE = 127
+    EMAIL = 215
+    MSDOS = 151
+    SCALE = 120
+    CUT = 137
+    VIDEO_PREV = 242
+    MUTE = 113
+    DISPLAY_OFF = 245
+    WLAN = 238
+    HANGEUL = 122
+    WWAN = 246
+    FINANCE = 219
+    BACKSLASH = 43
+    BRIGHTNESSDOWN = 224
+    KPDOT = 83
+    COFFEE = 152
+    PAUSECD = 201
+    SYSRQ = 99
+    F1 = 59
+    F3 = 61
+    F4 = 62
+    F6 = 64
+    F7 = 65
+    F9 = 67
+    SCROLLUP = 177
+    CANCEL = 223
+    SCROLLLOCK = 70
+    RIGHTBRACE = 27
+    HP = 211
+    FASTFORWARD = 208
+    UNKNOWN = 240
+    INSERT = 110
+    CYCLEWINDOWS = 154
+    KATAKANAHIRAGANA = 93
+    FRONT = 132
+    FORWARDMAIL = 233
+    MUHENKAN = 94
+    KPENTER = 96
+    KP0 = 82
+    KP1 = 79
+    KP2 = 80
+    KP3 = 81
+    KP4 = 75
+    KP6 = 77
+    KP7 = 71
+    KP8 = 72
+    KP9 = 73
+    BACKSPACE = 14
+    RO = 89
+    MINUS = 12
+    KPJPCOMMA = 95
+    LEFTBRACE = 26
+    UP = 103
+    SUSPEND = 205
+    FIND = 136
+    STOPCD = 166
+    DOCUMENTS = 235
+    LEFT = 105
+    EJECTCLOSECD = 162
+    EXIT = 174
+    SLASH = 53
+    CLOSE = 206
+    DOT = 52
+    BOOKMARKS = 156

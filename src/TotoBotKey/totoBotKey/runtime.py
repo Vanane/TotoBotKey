@@ -21,8 +21,6 @@ def runWith(script: str):
         print("ytodoold service not running, exiting.")
         exit()
 
-    keys.init()
-
     evdevUtils.init()
 
     inputs.init()
