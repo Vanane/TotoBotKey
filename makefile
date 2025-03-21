@@ -1,5 +1,9 @@
-build: clean
-	python3 -m build
+build:clean
+	for dir in TotoBotKey TotoBotRec; do \
+		cd "src/$$dir"; \
+		make build; \
+		cd ../../; \
+	done
 
 # Install built packages in the local venv
 install:
