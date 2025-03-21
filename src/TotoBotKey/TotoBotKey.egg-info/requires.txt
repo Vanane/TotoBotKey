@@ -1,3 +1,0 @@
-evdev>=1.7.1
-bitstring>=4.2.3
-setuptools>=75.0
