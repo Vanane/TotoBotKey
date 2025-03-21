@@ -1,6 +1,6 @@
 from totoBotKey.parser import BaseScript
 from totoBotKey.inputs import isPressed
-from totoBotKey.decorators import on, BindType, script
+from totoBotKey.decorators import on, BindType
 from totoBotKey.commands import wait, clickAt, pressKeys
 from totoBotKey.keys import Key
 from totoBotKey.buttons import Button
