@@ -3,7 +3,8 @@ analysis to deem it TotoBotKey-able."""
 
 import importlib
 from types import ModuleType
-from . import keys
+from .keys import Key
+from .buttons import Button
 
 
 class BaseScript:
@@ -71,14 +72,14 @@ def parseScript(script: str) -> ParserResult | bool:
 
     """
     mod = importlib.import_module(script)
-    clss = getScriptClassReflect(mod)
-    if clss is None:
+    clazz = getScriptClassReflect(mod)
+    if clazz is None:
         print("No script found.")
         return False
 
-    print(f"Script found : {clss.__name__}")
+    print(f"Script found : {clazz.__name__}")
 
-    return ParserResult(clss, getErrors(), False)
+    return ParserResult(clazz, getErrors(), False)
 
 
 def parseEventDecorator(*binds) -> tuple[list, list]:
@@ -93,19 +94,19 @@ def parseEventDecorator(*binds) -> tuple[list, list]:
         respectively.
     """
     modsDict = {
-        "^": keys.KEY_("LEFTCTRL"),
-        "+": keys.KEY_("LEFTSHIFT"),
-        "!": keys.KEY_("LEFTALT"),
-        "#": keys.KEY_("MENU"),
+        "^": Key.LEFTCTRL,
+        "+": Key.LEFTSHIFT,
+        "!": Key.LEFTALT,
+        "#": Key.MENU,
     }
     keysDict = {
-        "btnleft": keys.BTN_("LEFT"),
-        "btnright": keys.BTN_("RIGHT"),
-        "btnwheel": keys.BTN_("WHEEL"),
-        "btn4": keys.BTN_("4"),
-        "btn5": keys.BTN_("5"),
-        "btnside": keys.BTN_("SIDE"),
-        "btnextra": keys.BTN_("EXTRA"),
+        "btnleft": Button.LEFT,
+        "btnright": Button.RIGHT,
+        "btnwheel": Button.WHEEL,
+        "btn4": Button._4,
+        "btn5": Button._5,
+        "btnside": Button.SIDE,
+        "btnextra": Button.EXTRA,
     }
 
     mods = set()
@@ -125,16 +126,20 @@ def parseEventDecorator(*binds) -> tuple[list, list]:
                     if k.isalnum():
                         t += k
                     if not k.isalnum() or len(bind[i:]) == j + 1:
-                        key = f"KEY_{t.upper()}"
                         try:
-                            keycode = keysDict.get(t, keys.get(key))
-                            if keycode is not None:
-                                chars.add(int(keycode))
+                            print(f"t : {t}")
+                            print(f"get : {keysDict.get(t, "null")}")
+
+                            keycode = keysDict.get(t, None)
+                            if keycode is None:
+                                keycode = int(getattr(Key, t.upper()))
+                            if keycode is None:
+                                raise KeyError()
                             else:
-                                raise KeyError
+                                chars.add(int(keycode))
                         except KeyError:
                             addError(
-                                f"Error : Key '{key}' or keyword '{t}' not found when trying to parse expression '{bind}'."
+                                f"Error : Key or keyword '{t}' not found when trying to parse expression '{bind}'."
                             )
                         i += j
                         break

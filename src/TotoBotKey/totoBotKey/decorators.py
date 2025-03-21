@@ -15,6 +15,7 @@ class BindType(Enum):
 
 def on(*bind, bType:BindType = BindType.ONLY):
     """
+    Function decorator.
     Binds a function to a particular combination of keypresses, with a naturalish syntax.
     Some keys can't be used through this decorator, such as Delete, Insert, F1-12, etc.
     See syntax in Scripting.md.
@@ -37,6 +38,7 @@ def on(*bind, bType:BindType = BindType.ONLY):
 
 def onRaw(*bind, bType:BindType = BindType.ONLY):
     """
+    Function decorator.
     Binds a function to a particular combination of keys given explicitely,
     bypassing the translation
     Example :

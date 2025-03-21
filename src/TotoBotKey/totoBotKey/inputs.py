@@ -7,7 +7,7 @@ from multiprocessing.managers import SharedMemoryManager
 from typing import Callable, Tuple, List, Dict
 from evdevUtils import getDevices, listener, enums
 from evdev import InputDevice
-from . import keys
+from .keys import Key
 
 class Event:
     binding:Tuple[int]
@@ -154,7 +154,10 @@ def callback(data):
 def cleanUp():
     """Cleans thread pool up"""
     print("Shutting down inputs thread pool...")
-    for k in keys.keysDict:
-        ydotoold.write(enums.EV_KEY, keys.keysDict[k], 0)
-    ydotoold.write(enums.EV_SYN, 0, 0)
+    for k in Key.__dict__:
+        try:
+            ydotoold.write(enums.EV_KEY, int(getattr(Key, k)), 0)
+            ydotoold.write(enums.EV_SYN, 0, 0)
+        except (ValueError, TypeError):
+            pass
     eventsPool.shutdown()

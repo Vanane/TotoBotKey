@@ -32,7 +32,7 @@ python -m venv .venv
 pip install totobotkey
 ```
 
-See the `Script.md` file for detailed explanations and syntax.
+See the `Scripting.md` file for detailed explanations and syntax.
 
 See the `examples` directory for an example script and main file.
 
