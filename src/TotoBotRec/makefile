@@ -1,5 +1,6 @@
 build: clean
-	python3 -m build
+	python3 _build_check.py
+#	python3 -m build
 
 pub: publish
 publish:
@@ -11,6 +12,7 @@ install:
 	python3 -m pip install dist/*.whl --force-reinstall
 
 clean:
+# '-' discards errors
 # Twine directories
 	- rm -rf ./dist
 # egg-info, idk
