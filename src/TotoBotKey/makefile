@@ -6,7 +6,13 @@ build: clean
 
 pub: publish
 publish:
-	python3 -m twine upload dist/*
+	branch = $$(git branch --show-current)						;\
+	git stash -m "Stashing for publishing"						;\
+	git checkout main											;\
+	make build													;\
+	python3 -m twine upload dist/*								;\
+	git checkout $$branch										;\
+	git stash pop												;\
 
 # Install built packages in the local venv
 install:
