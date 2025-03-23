@@ -2,6 +2,8 @@
 from os import system, remove, path
 from io import FileIO
 from sys import argv
+from ast import literal_eval
+from __codegen import PythonCodeGen
 
 DUMP_FILE = "./input-event-codes.h"
 
@@ -44,54 +46,36 @@ def generate_file():
     with open(DUMP_FILE, encoding="utf-8") as f,\
     open(GENERATED_KEYS, mode="w", encoding="utf-8") as out_keys,\
     open(GENERATED_BTNS, mode="w", encoding="utf-8") as out_btns:
-        write_class(out_keys, "Key")
-        write_class(out_btns, "Button")
+        gen_keys = PythonCodeGen(out_keys, indent_string=" "*4)
+        gen_btns = PythonCodeGen(out_btns, indent_string=" "*4)
+        with gen_keys.cls("Key"), gen_btns.cls("Button"):
 
-        while l := f.readline().split():
-            try:
-                if l[1].startswith('KEY_'):
-                    l[1] = l[1].removeprefix('KEY_')
-                    write_enum(out_keys, l[1], int(l[2]))
-                else:
-                    if l[1].startswith('BTN_'):
-                        l[1] = l[1].removeprefix('BTN_')
-                        write_enum(out_btns, l[1], int(l[2], 16 if l[2].startswith('0x') else 10))
+            while l := f.readline().split():
+                try:
+                    if l[1].startswith('KEY_'):
+                        l[1] = l[1].removeprefix('KEY_')
+                        write_enum(gen_keys, l[1], literal_eval(l[2]))
                     else:
-                        print(f"Not a key : '{l[1]}'")
-            except ValueError:
-                print(f"'{l[1]}' value unrecognized : '{l[2]}'")
-            except IndexError:
-                pass
-            except Exception:
-                pass
-        write_class_end(out_keys)
-        write_class_end(out_btns)
+                        if l[1].startswith('BTN_'):
+                            l[1] = l[1].removeprefix('BTN_')
+                            write_enum(gen_btns, l[1], literal_eval(l[2]))
+                        else:
+                            pass#print(f"Not a key : '{l[1]}'")
+                except ValueError:
+                    pass#print(f"'{l[1]}' value unrecognized : '{l[2]}'")
+                except IndexError:
+                    pass
+                except Exception as e:
+                    print(e)
+                    pass
 
 
 # File generation
-def write_class(f:FileIO, clazz:str):
-    """a"""
-    global TABS
-    f.write(f"class {clazz}:\n")
-    TABS[f.fileno()] = 1
-    pass
-
-def write_class_end(f:FileIO):
-    """Write class end"""
-    global TABS
-    TABS[f.fileno()] = 0
-    f.write("")
-
-def write_enum(f:FileIO, name:str, val:str):
+def write_enum(f:PythonCodeGen, name:str, val:str):
     """Write enum"""
     if name[0].isdigit():
         name = '_' + name
-    f.write(f"{indent(TABS[f.fileno()], tab=False)}{name} = {val}\n")
-
-def indent(size:int, tab:bool=True, space:int=4):
-    """Return indent"""
-    return "".join(["\t" for i in range(0, size)] if tab else [" " for i in range(0, space * size)])
-
+    f.prop(name, val=val)
 
 
 if __name__ == '__main__':
