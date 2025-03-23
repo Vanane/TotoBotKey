@@ -6,20 +6,20 @@ include = ['totoBotKey', 'evdevUtils', 'ydotoolUtils']
 
 [project]
 name = 'TotoBotKey'
-version = '0.0.4'
+version = '0.0.6'
 authors = [{name='Vanane', email='vanane@vanane.net'}]
 description = 'Just like AutoHotKey, on Wayland (and probably X)'
 dependencies = ['evdev>=1.7.1', 'bitstring>=4.2.3', 'setuptools>=75.0']
-
 readme = 'README.md'
 requires-python = '>=3.12'
 classifiers = [
-        'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 3',
-        'Topic :: Desktop Environment'
-    ]
+	'Operating System :: POSIX :: Linux',
+	'Programming Language :: Python :: 3',
+	'Topic :: Desktop Environment'
+	]
 keywords = ['Automation', 'Wayland', 'Macro']
 
 [project.urls]
-Homepage = 'https://github.com/Vanane/TotoBotKey/tree/main/src/TotoBotKey'
+homepage = 'https://github.com/Vanane/TotoBotKey/tree/main/src/TotoBotKey'
 issues = 'https://github.com/Vanane/TotoBotKey/issues?q=label%3Atotobotkey'
+
