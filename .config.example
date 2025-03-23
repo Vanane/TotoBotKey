@@ -1,0 +1,8 @@
+[github]
+https=https://{api_key}@github.com/Vanane/TotoBotKey.git
+github_api=https://api.github.com/repos/Vanane/TotoBotKey
+api_key=<YOUR_PAT>
+api_version=2022-11-28
+
+[version]
+version_match=^version\s=\s[\d]+\.[\d]+\.[\d]+
