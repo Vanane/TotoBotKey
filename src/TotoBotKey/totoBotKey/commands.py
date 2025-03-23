@@ -63,3 +63,16 @@ def clickAt(btn:Button, x:int, y:int):
     """
     mousemove(x, y)
     click(btn)
+
+def holding(keys:int|list[int]):
+    """
+    Context Manager-friendly command to hold on keys when operating other actions.
+
+    Args:
+    keys : keycode or list of keycodes
+    """
+    try:
+        keydown(keys)
+        yield
+    finally:
+        keyup(keys)

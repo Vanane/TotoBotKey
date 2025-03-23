@@ -14,10 +14,10 @@ dependencies = ['TotoBotKey>=0.0.3', 'setuptools>=75.0']
 readme = 'README.md'
 requires-python = '>=3.12'
 classifiers = [
-    'Operating System :: POSIX :: Linux',
-    'Programming Language :: Python :: 3',
-    'Topic :: Desktop Environment'
-]
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python :: 3',
+        'Topic :: Desktop Environment'
+    ]
 keywords = ['Automation', 'Wayland', 'Macro']
 
 [project.urls]
